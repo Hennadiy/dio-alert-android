@@ -24,20 +24,6 @@ android {
         buildConfig = true
     }
 
-    flavorDimensions += "store"
-    productFlavors {
-        // The APK downloaded from Mind / GitHub releases: updates itself (Updater.kt).
-        create("github") {
-            dimension = "store"
-            buildConfigField("Boolean", "SIDELOADED", "true")
-        }
-        // Google Play: Play does the updates, and its policy forbids an app updating itself.
-        create("play") {
-            dimension = "store"
-            buildConfigField("Boolean", "SIDELOADED", "false")
-        }
-    }
-
     signingConfigs {
         create("release") {
             if (releaseKeystore != null) {
@@ -52,8 +38,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Without a release keystore the APK still installs, but an update signed
-            // with a different key needs the old app uninstalled first.
+            // The release key is the Play upload key; Play re-signs with its own app signing key.
             signingConfig = signingConfigs.getByName(if (releaseKeystore != null) "release" else "debug")
         }
     }
@@ -82,6 +67,5 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
-    implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("androidx.browser:browser:1.8.0")
 }

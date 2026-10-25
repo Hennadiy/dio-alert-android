@@ -1,16 +1,15 @@
-name: Build APK
+name: Build for Google Play
 
-# Every push to main builds the APK and publishes it as release v1.0.<run>:
-# the app's updater and Mind's "download the APK" link both use releases/latest.
-# A pushed tag v* publishes under that tag instead.
+# Every push builds the Google Play bundle (AAB, version 1.0.<run>, version code = run number).
+# On main it is uploaded to Play's internal testing track once PLAY_SERVICE_ACCOUNT_JSON is set.
+# Play installs and updates the app; there are no GitHub releases.
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -62,19 +61,12 @@ jobs:
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
             echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
           else
-            echo "::warning::No KEYSTORE_BASE64 secret: the APK is signed with a throwaway debug key, so installing the next build needs the old one uninstalled first."
+            echo "::warning::No KEYSTORE_BASE64 secret: the bundle is signed with a throwaway debug key, which Google Play will not accept as the upload key."
           fi
 
       - name: Version
         id: version
-        run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            echo "name=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
-          else
-            echo "name=1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
-            echo "tag=v1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
-          fi
+        run: echo "name=1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Build
         env:
@@ -84,26 +76,13 @@ jobs:
           VERSION_CODE: ${{ github.run_number }}
           VERSION_NAME: ${{ steps.version.outputs.name }}
         run: |
-          gradle assembleGithubRelease bundlePlayRelease --no-daemon
-          mv app/build/outputs/apk/github/release/app-github-release.apk dio-alert.apk
-          mv app/build/outputs/bundle/playRelease/app-play-release.aab dio-alert-play.aab
+          gradle bundleRelease --no-daemon
+          mv app/build/outputs/bundle/release/app-release.aab dio-alert.aab
 
       - uses: actions/upload-artifact@v4
         with:
           name: dio-alert
-          path: |
-            dio-alert.apk
-            dio-alert-play.aab
-
-      # Not from a placeholder build: such an APK can't receive alerts.
-      - name: Publish release
-        if: env.FIREBASE_PLACEHOLDER != '1' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          target_commitish: ${{ github.sha }}
-          files: dio-alert.apk
-          make_latest: true
+          path: dio-alert.aab
 
       # Google Play, internal testing track. Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a Play
       # Console service account) and a first AAB uploaded by hand. While the app has never been
@@ -117,11 +96,12 @@ jobs:
           if [ -n "$PLAY_SERVICE_ACCOUNT_JSON" ]; then echo "PLAY_UPLOAD=1" >> "$GITHUB_ENV"; fi
 
       - name: Upload to Google Play
+        # Never a placeholder build: such a bundle can't receive alerts.
         if: env.FIREBASE_PLACEHOLDER != '1' && github.ref == 'refs/heads/main' && env.PLAY_UPLOAD == '1'
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.dio.alert
-          releaseFiles: dio-alert-play.aab
+          releaseFiles: dio-alert.aab
           track: internal
           status: ${{ vars.PLAY_RELEASE_STATUS || 'draft' }}

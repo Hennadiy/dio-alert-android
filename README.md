@@ -19,10 +19,6 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 - Instead of signing in, a key made in Mind (Profile → Air raid alerts in Kyiv → Create connection key) can be pasted; signing out then leaves that key alone.
 - The app calls `api/AirAlert/RegisterDevice` with its FCM token on connect and on every start (token rotation, "last seen"). Revoking the key in Mind disconnects the phone.
 
-## Updates
-
-`Updater.kt` checks `releases/latest` of this repo when the app opens and once a day (`UpdateWorker`, a quiet notification), downloads `dio-alert.apk` and installs it with `PackageInstaller`. Android asks once to allow "install unknown apps" for Dio Alert. On Android 12+ updates after the first self-update install without a prompt. Android only accepts an APK signed with the same key, which is why the release keystore secrets matter.
-
 ## Changing sounds or vibration
 
 - Sounds: edit and run `python tools/make_sounds.py` (needs numpy); it writes `app/src/main/res/raw/*.wav`. Any short wav/ogg/mp3 works there.
@@ -35,27 +31,20 @@ CI builds everything (`.github/workflows/build.yml`); there is no Gradle wrapper
 
 One-time setup:
 1. **Firebase:** create a project at console.firebase.google.com, add an Android app with package `com.dio.alert`, download `google-services.json` and either commit it to `app/` or store it as the repo secret `GOOGLE_SERVICES_JSON`. In Project settings → Service accounts, generate a private key and give that JSON to the Mind server (see the service's CLAUDE.md, `FirebaseServiceAccountPath`).
-2. **Signing (recommended):** create a keystore once, e.g. `keytool -genkeypair -v -keystore release.jks -alias dioalert -keyalg RSA -keysize 2048 -validity 10000`, and add the secrets `KEYSTORE_BASE64` (`base64 -w0 release.jks`), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`. Without them the APK is signed with a throwaway key and each update needs the old app uninstalled.
+2. **Upload key:** the secrets `KEYSTORE_BASE64` (`base64 -w0 release.p12`), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` (set; the key itself is kept outside the repo). Losing it means asking Google Play support to reset the upload key.
 
-Release: every push to `main` builds the APK and publishes it as release `v1.0.<run number>` (the version code is the run number), which the in-app updater and Mind's download link pick up. A pushed `v*` tag publishes under that tag instead.
+Release: every push to `main` builds the AAB and, once Play is connected, uploads it to Google Play (see below).
 
 ## Install on the phone
 
-Download `dio-alert.apk`, allow installing from this source when Android asks, open Dio Alert, allow notifications, turn off battery optimisation (the app has buttons for both) and tap **Sign in with Mind**. Use the test buttons to hear and feel each kind. Later versions arrive through the app's own Update button.
+Install **Dio Alert** from Google Play (during internal testing: accept the tester invitation link first), open it, allow notifications, set battery optimisation to "Not optimised" (the app opens the list) and tap **Sign in with Mind**. Use the test buttons to hear and feel each kind.
 
 ## Google Play
 
-Two builds (product flavors):
+The app is distributed only through Google Play; Play installs and updates it (Mind's profile card links to the store page). Each build is an AAB with version name `1.0.<run>` and version code = the CI run number.
 
-| Flavor | Output | Differences |
-|---|---|---|
-| `github` | `dio-alert.apk`, the GitHub release Mind links to | Updates itself (`Updater.kt`), asks for the battery exemption directly |
-| `play` | `dio-alert-play.aab` for Google Play | No self-update (Play policy forbids it; Play updates the app), opens the battery optimisation list instead of the restricted direct request |
+CI uploads the AAB to the **internal testing** track on every push to `main` once the secret `PLAY_SERVICE_ACCOUNT_JSON` is set (a Google Cloud service account with release permission in Play Console). Before the app's first review Play only takes draft releases; afterwards set the repo variable `PLAY_RELEASE_STATUS=completed`. The very first AAB has to be uploaded by hand in Play Console (download it from the run's artifacts).
 
-`BuildConfig.SIDELOADED` tells them apart; the github-only permissions live in `app/src/github/AndroidManifest.xml`.
+The `KEYSTORE_*` secrets are the **upload key**; Play re-signs the app with its own app signing key (Play App Signing).
 
 Store material: `store/LISTING.md` (texts and Play Console answers), `store/icon-512.png` and `store/feature-graphic.png` (regenerate with `node tools/store-assets/make.js`), `PRIVACY.md` (the privacy policy URL).
-
-CI uploads the AAB to the **internal testing** track on every push to `main` once the secret `PLAY_SERVICE_ACCOUNT_JSON` is set (Play Console service account with release permission). Before the app's first review Play only takes draft releases; afterwards set the repo variable `PLAY_RELEASE_STATUS=completed`. The very first AAB has to be uploaded by hand in Play Console.
-
-Play re-signs the app with its own key (Play App Signing), so a phone with the GitHub APK has to uninstall it once before installing from Play.

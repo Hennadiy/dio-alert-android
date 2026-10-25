@@ -1,10 +1,8 @@
 package com.dio.alert
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -42,11 +40,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
     private lateinit var serverTestButton: MaterialButton
-    private lateinit var updateCard: View
-    private lateinit var updateText: TextView
-    private lateinit var updateButton: MaterialButton
-
-    private var update: AppRelease? = null
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         updateSetupButtons()
@@ -68,11 +61,7 @@ class MainActivity : AppCompatActivity() {
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
         serverTestButton = findViewById(R.id.serverTestButton)
-        updateCard = findViewById(R.id.updateCard)
-        updateText = findViewById(R.id.updateText)
-        updateButton = findViewById(R.id.updateButton)
-        findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, Updater.installedVersion)
-        updateButton.setOnClickListener { installUpdate() }
+        findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
 
         signInButton.setOnClickListener { MindAuth.startSignIn(this) }
         findViewById<MaterialButton>(R.id.registerButton).setOnClickListener { MindAuth.openRegistration(this) }
@@ -139,44 +128,6 @@ class MainActivity : AppCompatActivity() {
         updateSetupButtons()
         loadStatus()
         refreshRegistration()
-        checkForUpdate()
-    }
-
-    private fun checkForUpdate() {
-        // A Play install is updated by Play.
-        if (!BuildConfig.SIDELOADED) return
-        lifecycleScope.launch {
-            update = runCatching { withContext(Dispatchers.IO) { Updater.findUpdate() } }.getOrNull()
-            val found = update
-            updateCard.visibility = if (found != null) View.VISIBLE else View.GONE
-            if (found != null) {
-                updateText.text = getString(R.string.update_available, found.version, Updater.installedVersion)
-            }
-        }
-    }
-
-    private fun installUpdate() {
-        val release = update ?: return
-        if (!Updater.canInstall(this)) {
-            // Asked once: Android's "install unknown apps" switch for Dio Alert.
-            toast(R.string.update_allow_install)
-            startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")))
-            return
-        }
-
-        updateButton.isEnabled = false
-        updateButton.text = getString(R.string.update_downloading)
-        lifecycleScope.launch {
-            try {
-                val apk = withContext(Dispatchers.IO) { Updater.download(this@MainActivity, release) }
-                withContext(Dispatchers.IO) { Updater.install(this@MainActivity, apk) }
-            } catch (e: Exception) {
-                toast(getString(R.string.update_failed, e.message ?: e.javaClass.simpleName))
-            } finally {
-                updateButton.isEnabled = true
-                updateButton.text = getString(R.string.update_install)
-            }
-        }
     }
 
     private fun connect() {
@@ -322,16 +273,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     // An alert app is exactly the case this exemption exists for: a delayed alert is useless.
-    // The github build asks directly (one tap); Play restricts that request, so the Play build
-    // opens the battery optimisation list, where the user picks Dio Alert.
-    @SuppressLint("BatteryLife")
+    // Google Play restricts the direct one-tap exemption request, so this opens the battery
+    // optimisation list, where the user picks Dio Alert.
     private fun requestBatteryExemption() {
-        val intent = if (BuildConfig.SIDELOADED) {
-            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName"))
-        } else {
-            Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-        }
-        startActivity(intent)
+        startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
     }
 
     private fun openNotificationSettings() {
