@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var keyGroup: View
     private lateinit var connectButton: MaterialButton
     private lateinit var disconnectButton: MaterialButton
+    private lateinit var signInGroup: View
+    private lateinit var signInButton: MaterialButton
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
     private lateinit var serverTestButton: MaterialButton
@@ -61,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         keyGroup = findViewById(R.id.keyGroup)
         connectButton = findViewById(R.id.connectButton)
         disconnectButton = findViewById(R.id.disconnectButton)
+        signInGroup = findViewById(R.id.signInGroup)
+        signInButton = findViewById(R.id.signInButton)
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
         serverTestButton = findViewById(R.id.serverTestButton)
@@ -70,6 +74,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, Updater.installedVersion)
         updateButton.setOnClickListener { installUpdate() }
 
+        signInButton.setOnClickListener { MindAuth.startSignIn(this) }
+        findViewById<MaterialButton>(R.id.registerButton).setOnClickListener { MindAuth.openRegistration(this) }
+        findViewById<MaterialButton>(R.id.useKeyButton).setOnClickListener {
+            keyGroup.visibility = if (keyGroup.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
         connectButton.setOnClickListener { connect() }
         disconnectButton.setOnClickListener { disconnect() }
         notificationsButton.setOnClickListener { requestNotifications() }
@@ -85,6 +94,42 @@ class MainActivity : AppCompatActivity() {
         // Android 13+ shows nothing until the user allows notifications; ask right away.
         if (!hasNotificationPermission()) {
             requestNotifications()
+        }
+        handleSignInRedirect(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleSignInRedirect(intent)
+    }
+
+    /** The login page came back with an authorization code: finish signing in. */
+    private fun handleSignInRedirect(intent: Intent?) {
+        val redirect = intent?.data
+        if (!MindAuth.isRedirect(redirect) || redirect == null) {
+            return
+        }
+        // Handled once, even if the activity is recreated with the same intent.
+        intent?.data = null
+
+        signInButton.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val (key, email) = withContext(Dispatchers.IO) { MindAuth.completeSignIn(this@MainActivity, redirect) }
+                val token = FirebaseMessaging.getInstance().token.await()
+                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName) }
+                prefs.deviceKey = key
+                prefs.registeredToken = token
+                prefs.userEmail = email
+                prefs.keyCreatedByApp = true
+                toast(R.string.connected)
+            } catch (e: Exception) {
+                toast(getString(R.string.sign_in_failed, e.message ?: e.javaClass.simpleName))
+            } finally {
+                signInButton.isEnabled = true
+                updateConnection()
+            }
         }
     }
 
@@ -146,6 +191,8 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName) }
                 prefs.deviceKey = key
                 prefs.registeredToken = token
+                prefs.userEmail = null
+                prefs.keyCreatedByApp = false
                 keyInput.setText("")
                 toast(R.string.connected)
             } catch (e: Exception) {
@@ -160,12 +207,13 @@ class MainActivity : AppCompatActivity() {
     private fun disconnect() {
         val key = prefs.deviceKey
         val token = prefs.registeredToken
-        prefs.clear()
+        val revokeKey = prefs.keyCreatedByApp
+        prefs.clearConnection()
         updateConnection()
-        if (key != null && token != null) {
+        if (key != null) {
             lifecycleScope.launch {
-                // Best effort: if it fails, the server keeps the phone until it is removed in Mind.
-                runCatching { withContext(Dispatchers.IO) { ApiClient.unregisterDevice(key, token) } }
+                // Best effort: if it fails, the phone stays in Mind's list until it is removed there.
+                runCatching { withContext(Dispatchers.IO) { ApiClient.unregisterDevice(key, token, revokeKey) } }
             }
         }
     }
@@ -181,7 +229,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: ApiClient.ApiException) {
                 if (e.code == 401) {
                     // The key was revoked in Mind.
-                    prefs.clear()
+                    prefs.clearConnection()
                     updateConnection()
                     toast(R.string.key_revoked)
                 }
@@ -242,9 +290,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateConnection() {
         val connected = prefs.isConnected
-        connectionText.text = getString(if (connected) R.string.connection_on else R.string.connection_off)
+        val email = prefs.userEmail
+        connectionText.text = when {
+            connected && email != null -> getString(R.string.connection_on_as, email)
+            connected -> getString(R.string.connection_on)
+            else -> getString(R.string.connection_off)
+        }
         connectionText.setTextColor(ContextCompat.getColor(this, if (connected) R.color.calm else R.color.danger))
-        keyGroup.visibility = if (connected) View.GONE else View.VISIBLE
+        signInGroup.visibility = if (connected) View.GONE else View.VISIBLE
+        if (connected) keyGroup.visibility = View.GONE
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
         serverTestButton.isEnabled = connected
     }

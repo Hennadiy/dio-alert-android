@@ -30,12 +30,18 @@
 
     <string name="connection_title">Connection to Mind</string>
     <string name="connection_on">Connected: alerts will arrive on this phone</string>
-    <string name="connection_off">Not connected</string>
-    <string name="key_hint">In Mind open Profile → Air raid alerts in Kyiv → Create connection key, then paste the key here.</string>
+    <string name="connection_off">Not signed in</string>
+    <string name="connection_on_as">Signed in as %1$s: alerts will arrive on this phone</string>
+    <string name="sign_in">Sign in with Mind</string>
+    <string name="register">Create a Mind account</string>
+    <string name="register_hint">A new account works after an administrator approves it.</string>
+    <string name="use_key">I have a connection key</string>
+    <string name="sign_in_failed">Could not sign in: %1$s</string>
+    <string name="key_hint">Instead of signing in: in Mind open Profile → Air raid alerts in Kyiv → Create connection key, then paste the key here.</string>
     <string name="key_label">Connection key</string>
     <string name="key_required">Paste the key from Mind</string>
     <string name="connect">Connect</string>
-    <string name="disconnect">Disconnect</string>
+    <string name="disconnect">Sign out</string>
     <string name="connected">Connected</string>
     <string name="connect_failed">Could not connect: %1$s</string>
     <string name="key_revoked">The key was revoked in Mind. Create a new one to connect again.</string>

@@ -28,12 +28,18 @@
 
     <string name="connection_title">Підключення до Mind</string>
     <string name="connection_on">Підключено: тривоги приходитимуть на цей телефон</string>
-    <string name="connection_off">Не підключено</string>
-    <string name="key_hint">У Mind відкрийте Профіль → Повітряна тривога в Києві → Створити ключ підключення й вставте ключ сюди.</string>
+    <string name="connection_off">Вхід не виконано</string>
+    <string name="connection_on_as">Ви увійшли як %1$s: тривоги приходитимуть на цей телефон</string>
+    <string name="sign_in">Увійти через Mind</string>
+    <string name="register">Створити акаунт Mind</string>
+    <string name="register_hint">Новий акаунт запрацює після схвалення адміністратором.</string>
+    <string name="use_key">У мене є ключ підключення</string>
+    <string name="sign_in_failed">Не вдалося увійти: %1$s</string>
+    <string name="key_hint">Замість входу: у Mind відкрийте Профіль → Повітряна тривога в Києві → Створити ключ підключення й вставте ключ сюди.</string>
     <string name="key_label">Ключ підключення</string>
     <string name="key_required">Вставте ключ із Mind</string>
     <string name="connect">Підключити</string>
-    <string name="disconnect">Відключити</string>
+    <string name="disconnect">Вийти</string>
     <string name="connected">Підключено</string>
     <string name="connect_failed">Не вдалося підключитися: %1$s</string>
     <string name="key_revoked">Ключ відкликано в Mind. Створіть новий, щоб підключитися знову.</string>

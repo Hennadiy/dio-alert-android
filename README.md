@@ -15,7 +15,13 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 - Mind's server polls alerts.in.ua and, on a change, sends a high-priority **FCM notification message** to every registered phone (`AirAlertNotifier` / `FcmService` in the service). It names the kind's channel (`alert_drones_v1` / `alert_missiles_v1` / `alert_end_v1`) and the texts as string resource names (`alert_<kind>_title`, `alert_<kind>_body`, `alert_end_duration_*`, `alert_test_body`), so **Android shows it itself**, with that channel's vibration and sound and in the phone's language, even when the app isn't running.
 - While the app is open, Android passes the message to `AlertMessagingService` instead; it reads the data part `{kind, minutes?, test}` and shows the same notification (`AlertNotifier`).
 - Channel ids and `alert_*` string names are a contract with the server: rename them on both sides.
-- The phone connects with a Mind **device key** (header `X-Device-Key`): in Mind, Profile → Air raid alerts in Kyiv → Create connection key, then paste it into the app. The app calls `api/AirAlert/RegisterDevice` with its FCM token, and again on every start (token rotation, "last seen"). Revoking the key in Mind disconnects the phone.
+- **Sign in** (`MindAuth.kt`) opens Mind's OAuth login page (`/oauth/authorize`, client `dio-alert`, redirect `com.dio.alert:/oauth`, PKCE) in a browser tab, so the password and reCAPTCHA stay on Mind's page. With the returned token the app creates a **device key** for this phone (`api/DeviceKey/Create`) and keeps only that key (header `X-Device-Key`). **Sign out** unregisters the phone and revokes that key. **Create a Mind account** opens Mind's registration page; an admin approves new accounts.
+- Instead of signing in, a key made in Mind (Profile → Air raid alerts in Kyiv → Create connection key) can be pasted; signing out then leaves that key alone.
+- The app calls `api/AirAlert/RegisterDevice` with its FCM token on connect and on every start (token rotation, "last seen"). Revoking the key in Mind disconnects the phone.
+
+## Updates
+
+`Updater.kt` checks `releases/latest` of this repo when the app opens and once a day (`UpdateWorker`, a quiet notification), downloads `dio-alert.apk` and installs it with `PackageInstaller`. Android asks once to allow "install unknown apps" for Dio Alert. On Android 12+ updates after the first self-update install without a prompt. Android only accepts an APK signed with the same key, which is why the release keystore secrets matter.
 
 ## Changing sounds or vibration
 
@@ -31,8 +37,8 @@ One-time setup:
 1. **Firebase:** create a project at console.firebase.google.com, add an Android app with package `com.dio.alert`, download `google-services.json` and either commit it to `app/` or store it as the repo secret `GOOGLE_SERVICES_JSON`. In Project settings → Service accounts, generate a private key and give that JSON to the Mind server (see the service's CLAUDE.md, `FirebaseServiceAccountPath`).
 2. **Signing (recommended):** create a keystore once, e.g. `keytool -genkeypair -v -keystore release.jks -alias dioalert -keyalg RSA -keysize 2048 -validity 10000`, and add the secrets `KEYSTORE_BASE64` (`base64 -w0 release.jks`), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`. Without them the APK is signed with a throwaway key and each update needs the old app uninstalled.
 
-Release: `git tag v1.0.0 && git push --tags` builds the APK and publishes it as a GitHub release; Mind links to `releases/latest`. Every other push leaves the APK in the run's artifacts.
+Release: every push to `main` builds the APK and publishes it as release `v1.0.<run number>` (the version code is the run number), which the in-app updater and Mind's download link pick up. A pushed `v*` tag publishes under that tag instead.
 
 ## Install on the phone
 
-Download `dio-alert.apk`, allow installing from this source when Android asks, open Dio Alert, allow notifications, turn off battery optimisation (the app has buttons for both), paste the key and tap Connect. Use the test buttons to hear and feel each kind.
+Download `dio-alert.apk`, allow installing from this source when Android asks, open Dio Alert, allow notifications, turn off battery optimisation (the app has buttons for both) and tap **Sign in with Mind**. Use the test buttons to hear and feel each kind. Later versions arrive through the app's own Update button.

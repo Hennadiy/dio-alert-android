@@ -15,16 +15,48 @@ class Prefs(context: Context) {
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
 
+    /** Set when connected by signing in; null when a key was pasted. */
+    var userEmail: String?
+        get() = prefs.getString(KEY_EMAIL, null)
+        set(value) = prefs.edit().putString(KEY_EMAIL, value).apply()
+
+    /** The app created the key on sign-in, so signing out revokes it. A pasted key is the user's to keep. */
+    var keyCreatedByApp: Boolean
+        get() = prefs.getBoolean(KEY_CREATED_BY_APP, false)
+        set(value) = prefs.edit().putBoolean(KEY_CREATED_BY_APP, value).apply()
+
     val isConnected: Boolean
         get() = !deviceKey.isNullOrEmpty()
 
-    fun clear() {
-        prefs.edit().clear().apply()
+    /** The PKCE verifier and state of a sign-in in progress (survive the activity being recreated). */
+    fun setPendingSignIn(verifier: String, state: String) {
+        prefs.edit().putString(KEY_PENDING_VERIFIER, verifier).putString(KEY_PENDING_STATE, state).apply()
+    }
+
+    fun takePendingSignIn(): Pair<String, String>? {
+        val verifier = prefs.getString(KEY_PENDING_VERIFIER, null) ?: return null
+        val state = prefs.getString(KEY_PENDING_STATE, null) ?: return null
+        prefs.edit().remove(KEY_PENDING_VERIFIER).remove(KEY_PENDING_STATE).apply()
+        return verifier to state
+    }
+
+    /** Forgets the connection (not the pending sign-in). */
+    fun clearConnection() {
+        prefs.edit()
+            .remove(KEY_DEVICE_KEY)
+            .remove(KEY_TOKEN)
+            .remove(KEY_EMAIL)
+            .remove(KEY_CREATED_BY_APP)
+            .apply()
     }
 
     companion object {
         private const val KEY_DEVICE_KEY = "device_key"
         private const val KEY_TOKEN = "fcm_token"
+        private const val KEY_EMAIL = "user_email"
+        private const val KEY_CREATED_BY_APP = "key_created_by_app"
+        private const val KEY_PENDING_VERIFIER = "pending_verifier"
+        private const val KEY_PENDING_STATE = "pending_state"
 
         /** Shown in Mind's list of connected phones. */
         val deviceName: String
