@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_tagline">Повітряні тривоги в Києві з Mind: окрема вібрація й звук для дронів, ракет і відбою.</string>
+
+    <string name="channel_drones">Тривога: дрони</string>
+    <string name="channel_missiles">Тривога: ракети</string>
+    <string name="channel_end">Відбій</string>
+
+    <string name="alert_general_title">🚨 Повітряна тривога в Києві</string>
+    <string name="alert_general_body">Пройдіть в укриття.</string>
+    <string name="alert_drones_title">🛩️ Тривога в Києві: ударні дрони</string>
+    <string name="alert_drones_body">Загроза атаки БпЛА. Пройдіть в укриття.</string>
+    <string name="alert_missiles_title">🚀 Тривога в Києві: ракетна загроза</string>
+    <string name="alert_missiles_body">Загроза ракетного удару! Негайно в укриття.</string>
+    <string name="alert_end_title">✅ Відбій тривоги в Києві</string>
+    <string name="alert_end_body">Тривогу скасовано.</string>
+    <string name="alert_end_duration_minutes">Тривога тривала %1$s хв.</string>
+    <string name="alert_end_duration_hours">Тривога тривала %1$s год %2$s хв.</string>
+    <string name="alert_test_body">Це перевірка. Нічого не відбувається.</string>
+
+    <string name="status_title">Київ зараз</string>
+    <string name="status_unknown">Стан невідомий</string>
+    <string name="status_calm">Тривоги немає</string>
+    <string name="status_general">Повітряна тривога</string>
+    <string name="status_drones">Тривога: ударні дрони</string>
+    <string name="status_missiles">Тривога: ракетна загроза</string>
+    <string name="status_since">%1$s з %2$s</string>
+
+    <string name="connection_title">Підключення до Mind</string>
+    <string name="connection_on">Підключено: тривоги приходитимуть на цей телефон</string>
+    <string name="connection_off">Не підключено</string>
+    <string name="key_hint">У Mind відкрийте Профіль → Повітряна тривога в Києві → Створити ключ підключення й вставте ключ сюди.</string>
+    <string name="key_label">Ключ підключення</string>
+    <string name="key_required">Вставте ключ із Mind</string>
+    <string name="connect">Підключити</string>
+    <string name="disconnect">Відключити</string>
+    <string name="connected">Підключено</string>
+    <string name="connect_failed">Не вдалося підключитися: %1$s</string>
+    <string name="key_revoked">Ключ відкликано в Mind. Створіть новий, щоб підключитися знову.</string>
+
+    <string name="setup_title">Налаштування телефона</string>
+    <string name="setup_hint">Тривоги звучать на гучності будильника, навіть у беззвучному режимі. Щоб їх ніщо не затримувало, дозвольте сповіщення й вимкніть оптимізацію батареї для Dio Alert.</string>
+    <string name="allow_notifications">Дозволити сповіщення</string>
+    <string name="battery_exemption">Вимкнути оптимізацію батареї</string>
+    <string name="notification_settings">Налаштування сповіщень</string>
+
+    <string name="test_title">Перевірка</string>
+    <string name="test_hint">Кнопки показують кожну тривогу на цьому телефоні з її вібрацією та звуком. «Перевірка через сервер» надсилає ракетну тривогу з Mind так само, як приходить справжня.</string>
+    <string name="test_drones">Дрони</string>
+    <string name="test_missiles">Ракети</string>
+    <string name="test_end">Відбій</string>
+    <string name="server_test">Перевірка через сервер</string>
+    <string name="server_test_sent">Надіслано. Тривога має прийти за кілька секунд.</string>
+    <string name="request_failed">Помилка запиту: %1$s</string>
+</resources>

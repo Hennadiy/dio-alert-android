@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dio Alert</string>
+    <string name="app_tagline">Kyiv air raid alerts from Mind, with a different vibration and sound for drones, missiles and the all-clear.</string>
+
+    <string name="channel_drones">Drone alert</string>
+    <string name="channel_missiles">Missile alert</string>
+    <string name="channel_end">All clear</string>
+
+    <!-- alert_*: also used by the server as FCM loc keys (AirAlertNotifier.cs). Keep the names. -->
+    <string name="alert_general_title">🚨 Air raid alert in Kyiv</string>
+    <string name="alert_general_body">Go to a shelter.</string>
+    <string name="alert_drones_title">🛩️ Kyiv alert: attack drones</string>
+    <string name="alert_drones_body">Drone attack threat. Go to a shelter.</string>
+    <string name="alert_missiles_title">🚀 Kyiv alert: missile threat</string>
+    <string name="alert_missiles_body">Missile strike threat! Go to a shelter now.</string>
+    <string name="alert_end_title">✅ All clear in Kyiv</string>
+    <string name="alert_end_body">The alert is over.</string>
+    <string name="alert_end_duration_minutes">The alert lasted %1$s min.</string>
+    <string name="alert_end_duration_hours">The alert lasted %1$s h %2$s min.</string>
+    <string name="alert_test_body">This is a test. Nothing is happening.</string>
+
+    <string name="status_title">Kyiv now</string>
+    <string name="status_unknown">Status unknown</string>
+    <string name="status_calm">No alert</string>
+    <string name="status_general">Air raid alert</string>
+    <string name="status_drones">Alert: attack drones</string>
+    <string name="status_missiles">Alert: missile threat</string>
+    <string name="status_since">%1$s since %2$s</string>
+
+    <string name="connection_title">Connection to Mind</string>
+    <string name="connection_on">Connected: alerts will arrive on this phone</string>
+    <string name="connection_off">Not connected</string>
+    <string name="key_hint">In Mind open Profile → Air raid alerts in Kyiv → Create connection key, then paste the key here.</string>
+    <string name="key_label">Connection key</string>
+    <string name="key_required">Paste the key from Mind</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connected">Connected</string>
+    <string name="connect_failed">Could not connect: %1$s</string>
+    <string name="key_revoked">The key was revoked in Mind. Create a new one to connect again.</string>
+
+    <string name="setup_title">Phone setup</string>
+    <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and turn off battery optimisation for Dio Alert.</string>
+    <string name="allow_notifications">Allow notifications</string>
+    <string name="battery_exemption">Turn off battery optimisation</string>
+    <string name="notification_settings">Notification settings</string>
+
+    <string name="test_title">Test</string>
+    <string name="test_hint">The buttons show each alert on this phone with its vibration and sound. “Test via server” sends a missile alert from Mind, the same way a real one arrives.</string>
+    <string name="test_drones">Drones</string>
+    <string name="test_missiles">Missiles</string>
+    <string name="test_end">All clear</string>
+    <string name="server_test">Test via server</string>
+    <string name="server_test_sent">Sent. The alert should arrive in a few seconds.</string>
+    <string name="request_failed">Request failed: %1$s</string>
+</resources>
