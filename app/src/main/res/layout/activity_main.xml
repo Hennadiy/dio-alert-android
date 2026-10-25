@@ -26,6 +26,34 @@
             android:text="@string/app_tagline"
             android:textAppearance="?attr/textAppearanceBodyMedium" />
 
+        <!-- Update, shown only when GitHub has a newer release -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/updateCard"
+            style="@style/Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <LinearLayout style="@style/CardBody">
+
+                <TextView
+                    style="@style/SectionTitle"
+                    android:text="@string/update_title" />
+
+                <TextView
+                    android:id="@+id/updateText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/updateButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/update_install" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Current state in Kyiv -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Card"
@@ -209,5 +237,13 @@
                     app:icon="@drawable/ic_stat_alert" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/versionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceBodySmall" />
     </LinearLayout>
 </ScrollView>

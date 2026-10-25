@@ -52,4 +52,14 @@
     <string name="server_test">Перевірка через сервер</string>
     <string name="server_test_sent">Надіслано. Тривога має прийти за кілька секунд.</string>
     <string name="request_failed">Помилка запиту: %1$s</string>
+    <string name="update_title">Оновлення</string>
+    <string name="update_available">Доступна версія %1$s (встановлена: %2$s).</string>
+    <string name="update_install">Оновити</string>
+    <string name="update_downloading">Завантаження…</string>
+    <string name="update_allow_install">Дозвольте Dio Alert встановлювати оновлення й натисніть «Оновити» ще раз.</string>
+    <string name="update_failed">Не вдалося оновити: %1$s</string>
+    <string name="update_notification_title">Доступне оновлення Dio Alert</string>
+    <string name="update_notification_body">Версія %1$s. Натисніть, щоб оновити.</string>
+    <string name="channel_updates">Оновлення застосунку</string>
+    <string name="version_label">Версія %1$s</string>
 </resources>

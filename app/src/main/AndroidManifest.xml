@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Lets the app ask to be exempt from battery optimisation, so alerts are never held back. -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Self-update from GitHub releases (Updater.kt); the user allows it once. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
 
     <application
         android:name=".DioAlertApp"
@@ -32,6 +35,10 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_alert" />
+
+        <receiver
+            android:name=".Updater$InstallResultReceiver"
+            android:exported="false" />
 
         <service
             android:name=".AlertMessagingService"

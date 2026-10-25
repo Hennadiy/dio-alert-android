@@ -1,8 +1,8 @@
 name: Build APK
 
-# Every push builds an APK (downloadable from the run's artifacts).
-# A pushed tag v* also publishes it as a GitHub release, which is what
-# Mind's "download the APK" link (releases/latest) points at.
+# Every push to main builds the APK and publishes it as release v1.0.<run>:
+# the app's updater and Mind's "download the APK" link both use releases/latest.
+# A pushed tag v* publishes under that tag instead.
 on:
   push:
     branches: [main]
@@ -65,13 +65,24 @@ jobs:
             echo "::warning::No KEYSTORE_BASE64 secret: the APK is signed with a throwaway debug key, so installing the next build needs the old one uninstalled first."
           fi
 
+      - name: Version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "name=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "tag=v1.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           VERSION_CODE: ${{ github.run_number }}
-          VERSION_NAME: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('1.0.{0}', github.run_number) }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
         run: |
           gradle assembleRelease --no-daemon
           mv app/build/outputs/apk/release/app-release.apk dio-alert.apk
@@ -81,8 +92,12 @@ jobs:
           name: dio-alert
           path: dio-alert.apk
 
+      # Not from a placeholder build: such an APK can't receive alerts.
       - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/v') && env.FIREBASE_PLACEHOLDER != '1'
+        if: env.FIREBASE_PLACEHOLDER != '1' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: dio-alert.apk
+          make_latest: true

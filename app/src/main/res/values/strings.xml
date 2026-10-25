@@ -54,4 +54,14 @@
     <string name="server_test">Test via server</string>
     <string name="server_test_sent">Sent. The alert should arrive in a few seconds.</string>
     <string name="request_failed">Request failed: %1$s</string>
+    <string name="update_title">Update</string>
+    <string name="update_available">Version %1$s is available (installed: %2$s).</string>
+    <string name="update_install">Update</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_allow_install">Allow Dio Alert to install updates, then tap Update again.</string>
+    <string name="update_failed">Update failed: %1$s</string>
+    <string name="update_notification_title">Dio Alert update available</string>
+    <string name="update_notification_body">Version %1$s. Tap to update.</string>
+    <string name="channel_updates">App updates</string>
+    <string name="version_label">Version %1$s</string>
 </resources>

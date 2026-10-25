@@ -40,6 +40,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
     private lateinit var serverTestButton: MaterialButton
+    private lateinit var updateCard: View
+    private lateinit var updateText: TextView
+    private lateinit var updateButton: MaterialButton
+
+    private var update: AppRelease? = null
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         updateSetupButtons()
@@ -59,6 +64,11 @@ class MainActivity : AppCompatActivity() {
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
         serverTestButton = findViewById(R.id.serverTestButton)
+        updateCard = findViewById(R.id.updateCard)
+        updateText = findViewById(R.id.updateText)
+        updateButton = findViewById(R.id.updateButton)
+        findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, Updater.installedVersion)
+        updateButton.setOnClickListener { installUpdate() }
 
         connectButton.setOnClickListener { connect() }
         disconnectButton.setOnClickListener { disconnect() }
@@ -84,6 +94,42 @@ class MainActivity : AppCompatActivity() {
         updateSetupButtons()
         loadStatus()
         refreshRegistration()
+        checkForUpdate()
+    }
+
+    private fun checkForUpdate() {
+        lifecycleScope.launch {
+            update = runCatching { withContext(Dispatchers.IO) { Updater.findUpdate() } }.getOrNull()
+            val found = update
+            updateCard.visibility = if (found != null) View.VISIBLE else View.GONE
+            if (found != null) {
+                updateText.text = getString(R.string.update_available, found.version, Updater.installedVersion)
+            }
+        }
+    }
+
+    private fun installUpdate() {
+        val release = update ?: return
+        if (!Updater.canInstall(this)) {
+            // Asked once: Android's "install unknown apps" switch for Dio Alert.
+            toast(R.string.update_allow_install)
+            startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")))
+            return
+        }
+
+        updateButton.isEnabled = false
+        updateButton.text = getString(R.string.update_downloading)
+        lifecycleScope.launch {
+            try {
+                val apk = withContext(Dispatchers.IO) { Updater.download(this@MainActivity, release) }
+                withContext(Dispatchers.IO) { Updater.install(this@MainActivity, apk) }
+            } catch (e: Exception) {
+                toast(getString(R.string.update_failed, e.message ?: e.javaClass.simpleName))
+            } finally {
+                updateButton.isEnabled = true
+                updateButton.text = getString(R.string.update_install)
+            }
+        }
     }
 
     private fun connect() {
