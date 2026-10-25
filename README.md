@@ -42,3 +42,20 @@ Release: every push to `main` builds the APK and publishes it as release `v1.0.<
 ## Install on the phone
 
 Download `dio-alert.apk`, allow installing from this source when Android asks, open Dio Alert, allow notifications, turn off battery optimisation (the app has buttons for both) and tap **Sign in with Mind**. Use the test buttons to hear and feel each kind. Later versions arrive through the app's own Update button.
+
+## Google Play
+
+Two builds (product flavors):
+
+| Flavor | Output | Differences |
+|---|---|---|
+| `github` | `dio-alert.apk`, the GitHub release Mind links to | Updates itself (`Updater.kt`), asks for the battery exemption directly |
+| `play` | `dio-alert-play.aab` for Google Play | No self-update (Play policy forbids it; Play updates the app), opens the battery optimisation list instead of the restricted direct request |
+
+`BuildConfig.SIDELOADED` tells them apart; the github-only permissions live in `app/src/github/AndroidManifest.xml`.
+
+Store material: `store/LISTING.md` (texts and Play Console answers), `store/icon-512.png` and `store/feature-graphic.png` (regenerate with `node tools/store-assets/make.js`), `PRIVACY.md` (the privacy policy URL).
+
+CI uploads the AAB to the **internal testing** track on every push to `main` once the secret `PLAY_SERVICE_ACCOUNT_JSON` is set (Play Console service account with release permission). Before the app's first review Play only takes draft releases; afterwards set the repo variable `PLAY_RELEASE_STATUS=completed`. The very first AAB has to be uploaded by hand in Play Console.
+
+Play re-signs the app with its own key (Play App Signing), so a phone with the GitHub APK has to uninstall it once before installing from Play.

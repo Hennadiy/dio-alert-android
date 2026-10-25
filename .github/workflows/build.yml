@@ -84,13 +84,16 @@ jobs:
           VERSION_CODE: ${{ github.run_number }}
           VERSION_NAME: ${{ steps.version.outputs.name }}
         run: |
-          gradle assembleRelease --no-daemon
-          mv app/build/outputs/apk/release/app-release.apk dio-alert.apk
+          gradle assembleGithubRelease bundlePlayRelease --no-daemon
+          mv app/build/outputs/apk/github/release/app-github-release.apk dio-alert.apk
+          mv app/build/outputs/bundle/playRelease/app-play-release.aab dio-alert-play.aab
 
       - uses: actions/upload-artifact@v4
         with:
           name: dio-alert
-          path: dio-alert.apk
+          path: |
+            dio-alert.apk
+            dio-alert-play.aab
 
       # Not from a placeholder build: such an APK can't receive alerts.
       - name: Publish release
@@ -101,3 +104,24 @@ jobs:
           target_commitish: ${{ github.sha }}
           files: dio-alert.apk
           make_latest: true
+
+      # Google Play, internal testing track. Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a Play
+      # Console service account) and a first AAB uploaded by hand. While the app has never been
+      # reviewed Play only accepts draft releases; set the repo variable PLAY_RELEASE_STATUS to
+      # "completed" after that so releases roll out by themselves.
+      # Secrets can't appear in an if, so a step turns "is it set" into an env flag.
+      - name: Google Play configured?
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -n "$PLAY_SERVICE_ACCOUNT_JSON" ]; then echo "PLAY_UPLOAD=1" >> "$GITHUB_ENV"; fi
+
+      - name: Upload to Google Play
+        if: env.FIREBASE_PLACEHOLDER != '1' && github.ref == 'refs/heads/main' && env.PLAY_UPLOAD == '1'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.dio.alert
+          releaseFiles: dio-alert-play.aab
+          track: internal
+          status: ${{ vars.PLAY_RELEASE_STATUS || 'draft' }}

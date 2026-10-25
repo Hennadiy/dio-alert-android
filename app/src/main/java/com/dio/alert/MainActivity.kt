@@ -143,6 +143,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForUpdate() {
+        // A Play install is updated by Play.
+        if (!BuildConfig.SIDELOADED) return
         lifecycleScope.launch {
             update = runCatching { withContext(Dispatchers.IO) { Updater.findUpdate() } }.getOrNull()
             val found = update
@@ -320,9 +322,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     // An alert app is exactly the case this exemption exists for: a delayed alert is useless.
+    // The github build asks directly (one tap); Play restricts that request, so the Play build
+    // opens the battery optimisation list, where the user picks Dio Alert.
     @SuppressLint("BatteryLife")
     private fun requestBatteryExemption() {
-        startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+        val intent = if (BuildConfig.SIDELOADED) {
+            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName"))
+        } else {
+            Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+        }
+        startActivity(intent)
     }
 
     private fun openNotificationSettings() {

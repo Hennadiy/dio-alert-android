@@ -24,6 +24,20 @@ android {
         buildConfig = true
     }
 
+    flavorDimensions += "store"
+    productFlavors {
+        // The APK downloaded from Mind / GitHub releases: updates itself (Updater.kt).
+        create("github") {
+            dimension = "store"
+            buildConfigField("Boolean", "SIDELOADED", "true")
+        }
+        // Google Play: Play does the updates, and its policy forbids an app updating itself.
+        create("play") {
+            dimension = "store"
+            buildConfigField("Boolean", "SIDELOADED", "false")
+        }
+    }
+
     signingConfigs {
         create("release") {
             if (releaseKeystore != null) {
