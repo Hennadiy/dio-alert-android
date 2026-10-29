@@ -25,7 +25,7 @@ The data is not sold or shared with anyone else.
 - **Sign out** in the app: the phone is removed from Mind and its connection key is deleted.
 - In Mind, **Profile → Air raid alerts in Kyiv → Connected phones → Disconnect** removes a phone without the app.
 - Uninstalling the app stops delivery; the server removes the phone's push token the next time delivery to it fails.
-- To delete your Mind account and everything in it, contact the developer at the email address shown on the app's Google Play page.
+- To delete your Mind account and everything in it, follow [Deleting your account](DELETE-ACCOUNT.md).
 
 ---
 
@@ -54,4 +54,4 @@ Dio Alert показує на телефоні повітряні тривоги
 - **Вийти** в застосунку: телефон видаляється з Mind, а його ключ підключення — знищується.
 - У Mind: **Профіль → Повітряна тривога в Києві → Підключені телефони → Відключити** видаляє телефон і без застосунку.
 - Після видалення застосунку доставка припиняється; сервер видаляє push-токен телефона після першої невдалої спроби доставки.
-- Щоб видалити акаунт Mind з усіма даними, напишіть розробникові на адресу, вказану на сторінці застосунку в Google Play.
+- Щоб видалити акаунт Mind з усіма даними, див. [Видалення акаунта](DELETE-ACCOUNT.md#dio-alert-видалення-акаунта-й-даних).
