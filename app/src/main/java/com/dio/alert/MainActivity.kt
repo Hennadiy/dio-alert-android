@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var prefs: Prefs
 
+    private lateinit var regionButton: MaterialButton
     private lateinit var statusText: TextView
     private lateinit var connectionText: TextView
     private lateinit var keyInput: TextInputEditText
@@ -50,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         prefs = Prefs(this)
 
+        regionButton = findViewById(R.id.regionButton)
         statusText = findViewById(R.id.statusText)
         connectionText = findViewById(R.id.connectionText)
         keyInput = findViewById(R.id.keyInput)
@@ -63,6 +66,7 @@ class MainActivity : AppCompatActivity() {
         serverTestButton = findViewById(R.id.serverTestButton)
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
 
+        regionButton.setOnClickListener { pickRegion() }
         signInButton.setOnClickListener { MindAuth.startSignIn(this) }
         findViewById<MaterialButton>(R.id.registerButton).setOnClickListener { MindAuth.openRegistration(this) }
         findViewById<MaterialButton>(R.id.useKeyButton).setOnClickListener {
@@ -75,9 +79,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.channelSettingsButton).setOnClickListener { openNotificationSettings() }
 
         // Local tests: exactly the notification a real alert produces, without the network.
-        findViewById<MaterialButton>(R.id.testDronesButton).setOnClickListener { AlertNotifier.show(this, "drones", null, true) }
-        findViewById<MaterialButton>(R.id.testMissilesButton).setOnClickListener { AlertNotifier.show(this, "missiles", null, true) }
-        findViewById<MaterialButton>(R.id.testEndButton).setOnClickListener { AlertNotifier.show(this, "end", 42, true) }
+        findViewById<MaterialButton>(R.id.testDronesButton).setOnClickListener { AlertNotifier.show(this, "drones", prefs.region, null, true) }
+        findViewById<MaterialButton>(R.id.testMissilesButton).setOnClickListener { AlertNotifier.show(this, "missiles", prefs.region, null, true) }
+        findViewById<MaterialButton>(R.id.testEndButton).setOnClickListener { AlertNotifier.show(this, "end", prefs.region, 42, true) }
         serverTestButton.setOnClickListener { serverTest() }
 
         // Android 13+ shows nothing until the user allows notifications; ask right away.
@@ -107,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 val (key, email) = withContext(Dispatchers.IO) { MindAuth.completeSignIn(this@MainActivity, redirect) }
                 val token = FirebaseMessaging.getInstance().token.await()
-                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName) }
+                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid) }
                 prefs.deviceKey = key
                 prefs.registeredToken = token
                 prefs.userEmail = email
@@ -124,6 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateRegion()
         updateConnection()
         updateSetupButtons()
         loadStatus()
@@ -141,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val token = FirebaseMessaging.getInstance().token.await()
-                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName) }
+                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid) }
                 prefs.deviceKey = key
                 prefs.registeredToken = token
                 prefs.userEmail = null
@@ -177,7 +182,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val token = FirebaseMessaging.getInstance().token.await()
-                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName) }
+                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid) }
                 prefs.registeredToken = token
             } catch (e: ApiClient.ApiException) {
                 if (e.code == 401) {
@@ -207,10 +212,70 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateRegion() {
+        regionButton.text = prefs.region.displayName
+    }
+
+    /** Lists Mind's regions (or the last list seen, offline); picking one re-registers the phone for it. */
+    private fun pickRegion() {
+        regionButton.isEnabled = false
+        lifecycleScope.launch {
+            val regions = try {
+                withContext(Dispatchers.IO) { ApiClient.getRegions() }.also { prefs.regions = it }
+            } catch (e: Exception) {
+                prefs.regions
+            } finally {
+                regionButton.isEnabled = true
+            }
+            if (regions.isEmpty()) {
+                toast(R.string.regions_unavailable)
+                return@launch
+            }
+
+            val current = regions.indexOfFirst { it.uid == prefs.region.uid }
+            MaterialAlertDialogBuilder(this@MainActivity)
+                .setTitle(R.string.region_pick_title)
+                .setSingleChoiceItems(regions.map { it.displayName }.toTypedArray(), current) { dialog, which ->
+                    dialog.dismiss()
+                    changeRegion(regions[which])
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun changeRegion(region: Region) {
+        if (region.uid == prefs.region.uid) {
+            return
+        }
+        val previous = prefs.region
+        prefs.region = region
+        updateRegion()
+        statusText.text = getString(R.string.status_unknown)
+        loadStatus()
+
+        val key = prefs.deviceKey ?: return
+        lifecycleScope.launch {
+            try {
+                val token = FirebaseMessaging.getInstance().token.await()
+                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, region.uid) }
+                prefs.registeredToken = token
+                toast(getString(R.string.region_changed, region.displayName))
+            } catch (e: Exception) {
+                // The server still sends the old region's alerts: say so and show that region again.
+                prefs.region = previous
+                updateRegion()
+                loadStatus()
+                toast(getString(R.string.request_failed, e.message ?: e.javaClass.simpleName))
+            }
+        }
+    }
+
     private fun loadStatus() {
+        val regionUid = prefs.region.uid
         lifecycleScope.launch {
             val text = try {
-                val status = withContext(Dispatchers.IO) { ApiClient.getStatus() }
+                val status = withContext(Dispatchers.IO) { ApiClient.getStatus(regionUid) }
                 describe(status)
             } catch (e: Exception) {
                 getString(R.string.status_unknown)

@@ -35,7 +35,7 @@ const feature = `
   </div>
   <div>
     <div style="font-size:84px;font-weight:800;letter-spacing:-1px">Dio Alert</div>
-    <div style="font-size:34px;font-weight:600;margin-top:8px;opacity:.95">Повітряні тривоги в Києві</div>
+    <div style="font-size:34px;font-weight:600;margin-top:8px;opacity:.95">Повітряні тривоги у вашій області</div>
     <div style="font-size:26px;margin-top:22px;opacity:.9">🛩️ Дрони &nbsp;·&nbsp; 🚀 Ракети &nbsp;·&nbsp; ✅ Відбій</div>
   </div>
 </body>`;

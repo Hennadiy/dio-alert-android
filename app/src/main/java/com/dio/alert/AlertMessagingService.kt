@@ -13,7 +13,8 @@ class AlertMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         val kind = message.data["kind"] ?: return
-        AlertNotifier.show(this, kind, message.data["minutes"]?.toIntOrNull(), message.data["test"] == "1")
+        val region = message.data["region"]?.let { Region(0, it, message.data["regionEn"] ?: it) } ?: Prefs(this).region
+        AlertNotifier.show(this, kind, region, message.data["minutes"]?.toIntOrNull(), message.data["test"] == "1")
     }
 
     // Firebase rotates tokens now and then; the server only knows the one we registered.
@@ -22,7 +23,7 @@ class AlertMessagingService : FirebaseMessagingService() {
         val prefs = Prefs(this)
         val key = prefs.deviceKey ?: return
         try {
-            ApiClient.registerDevice(key, token, Prefs.deviceName)
+            ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid)
             prefs.registeredToken = token
         } catch (e: Exception) {
             // The app registers again the next time it is opened.

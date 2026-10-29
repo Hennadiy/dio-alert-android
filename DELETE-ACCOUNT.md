@@ -6,8 +6,8 @@ Dio Alert (developer: Dio) uses your **Mind** account (mind.dio-quiz.com.ua).
 
 ## Delete only the alert data (keep your Mind account)
 
-1. Open Dio Alert and tap **Sign out**, or in Mind open **Profile → Air raid alerts in Kyiv → Connected phones** and tap **Disconnect** next to the phone.
-2. This immediately deletes from the server the phone's connection key, push token, phone model and last check-in time.
+1. Open Dio Alert and tap **Sign out**, or in Mind open **Profile → Air raid alerts → Connected phones** and tap **Disconnect** next to the phone.
+2. This immediately deletes from the server the phone's connection key, push token, phone model, chosen region and last check-in time.
 
 ## Delete your Mind account and all its data
 
@@ -26,8 +26,8 @@ Dio Alert (розробник: Dio) використовує ваш акаунт
 
 ## Видалити лише дані тривог (акаунт Mind лишається)
 
-1. У Dio Alert натисніть **Вийти**, або в Mind відкрийте **Профіль → Повітряна тривога в Києві → Підключені телефони** й натисніть **Відключити** біля телефона.
-2. З сервера одразу видаляються ключ підключення телефона, push-токен, модель телефона й час останнього зв'язку.
+1. У Dio Alert натисніть **Вийти**, або в Mind відкрийте **Профіль → Повітряна тривога → Підключені телефони** й натисніть **Відключити** біля телефона.
+2. З сервера одразу видаляються ключ підключення телефона, push-токен, модель телефона, вибраний регіон і час останнього зв'язку.
 
 ## Видалити акаунт Mind з усіма даними
 

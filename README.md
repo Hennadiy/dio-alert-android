@@ -1,6 +1,6 @@
 # Dio Alert
 
-Android app that shows **Kyiv air raid alerts** from Mind (`mind-portal-service`), with a different vibration and sound per alert kind:
+Android app that shows **air raid alerts for the region the user picks** (any oblast, Kyiv or Sevastopol) from Mind (`mind-portal-service`), with a different vibration and sound per alert kind:
 
 | Kind | Vibration | Sound |
 |---|---|---|
@@ -12,11 +12,12 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 
 ## How it works
 
-- Mind's server polls alerts.in.ua and, on a change, sends a high-priority **FCM notification message** to every registered phone (`AirAlertNotifier` / `FcmService` in the service). It names the kind's channel (`alert_drones_v1` / `alert_missiles_v1` / `alert_end_v1`) and the texts as string resource names (`alert_<kind>_title`, `alert_<kind>_body`, `alert_end_duration_*`, `alert_test_body`), so **Android shows it itself**, with that channel's vibration and sound and in the phone's language, even when the app isn't running.
-- While the app is open, Android passes the message to `AlertMessagingService` instead; it reads the data part `{kind, minutes?, test}` and shows the same notification (`AlertNotifier`).
+- **Region:** the status card has a region picker (the list comes from `api/AirAlert/GetRegions`; default Kyiv city, uid 31). The phone registers with its `regionUid`; changing it re-registers, and the status is `GetStatus?regionUid=`.
+- Mind's server polls alerts.in.ua and, on a change in a region, sends a high-priority **FCM notification message** to the phones that follow it (`AirAlertNotifier` / `FcmService` in the service). It names the kind's channel (`alert_drones_v1` / `alert_missiles_v1` / `alert_end_v1`) and the texts as string resource names (`alert_<kind>_title`, `alert_<kind>_body`, `alert_end_duration_*`, `alert_test_body`; titles take the region name as two args, Ukrainian strings use `%1$s`, English `%2$s`), so **Android shows it itself**, with that channel's vibration and sound and in the phone's language, even when the app isn't running.
+- While the app is open, Android passes the message to `AlertMessagingService` instead; it reads the data part `{kind, region, regionEn, minutes?, test}` and shows the same notification (`AlertNotifier`).
 - Channel ids and `alert_*` string names are a contract with the server: rename them on both sides.
 - **Sign in** (`MindAuth.kt`) opens Mind's OAuth login page (`/oauth/authorize`, client `dio-alert`, redirect `com.dio.alert:/oauth`, PKCE) in a browser tab, so the password and reCAPTCHA stay on Mind's page. With the returned token the app creates a **device key** for this phone (`api/DeviceKey/Create`) and keeps only that key (header `X-Device-Key`). **Sign out** unregisters the phone and revokes that key. **Create a Mind account** opens Mind's registration page; an admin approves new accounts.
-- Instead of signing in, a key made in Mind (Profile → Air raid alerts in Kyiv → Create connection key) can be pasted; signing out then leaves that key alone.
+- Instead of signing in, a key made in Mind (Profile → Air raid alerts → Create connection key) can be pasted; signing out then leaves that key alone.
 - The app calls `api/AirAlert/RegisterDevice` with its FCM token on connect and on every start (token rotation, "last seen"). Revoking the key in Mind disconnects the phone.
 
 ## Changing sounds or vibration

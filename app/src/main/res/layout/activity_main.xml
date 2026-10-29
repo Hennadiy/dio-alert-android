@@ -26,7 +26,7 @@
             android:text="@string/app_tagline"
             android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-        <!-- Current state in Kyiv -->
+        <!-- The region and its current state -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Card"
             android:layout_width="match_parent"
@@ -36,10 +36,21 @@
 
                 <TextView
                     style="@style/SectionTitle"
-                    android:text="@string/status_title" />
+                    android:text="@string/region_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/regionButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|center_vertical"
+                    android:contentDescription="@string/region_pick_title"
+                    app:icon="@drawable/ic_expand_more"
+                    app:iconGravity="end" />
 
                 <TextView
                     android:id="@+id/statusText"
+                    android:layout_marginTop="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/status_unknown"

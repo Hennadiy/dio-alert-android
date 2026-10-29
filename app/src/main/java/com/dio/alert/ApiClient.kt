@@ -1,5 +1,6 @@
 package com.dio.alert
 
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -22,8 +23,8 @@ object ApiClient {
     private val serverRoot: String
         get() = BuildConfig.API_BASE_URL.removeSuffix("api/")
 
-    fun getStatus(): AlertStatus {
-        val json = JSONObject(request("GET", BuildConfig.API_BASE_URL + "AirAlert/GetStatus"))
+    fun getStatus(regionUid: Int): AlertStatus {
+        val json = JSONObject(request("GET", BuildConfig.API_BASE_URL + "AirAlert/GetStatus?regionUid=$regionUid"))
         return AlertStatus(
             isConfigured = json.optBoolean("isConfigured"),
             isActive = if (json.isNull("isActive")) null else json.getBoolean("isActive"),
@@ -32,8 +33,14 @@ object ApiClient {
         )
     }
 
-    fun registerDevice(deviceKey: String, fcmToken: String, name: String) {
-        postJson("AirAlert/RegisterDevice", deviceKey, JSONObject().put("fcmToken", fcmToken).put("name", name))
+    fun getRegions(): List<Region> = Region.listFromJson(JSONArray(request("GET", BuildConfig.API_BASE_URL + "AirAlert/GetRegions")))
+
+    /** Also how the phone switches to another region: the server upserts on the token. */
+    fun registerDevice(deviceKey: String, fcmToken: String, name: String, regionUid: Int) {
+        postJson(
+            "AirAlert/RegisterDevice", deviceKey,
+            JSONObject().put("fcmToken", fcmToken).put("name", name).put("regionUid", regionUid)
+        )
     }
 
     /** [revokeKey] also deletes the device key on the server (for keys the app created on sign-in). */

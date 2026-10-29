@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Dio Alert</string>
-    <string name="app_tagline">Kyiv air raid alerts from Mind, with a different vibration and sound for drones, missiles and the all-clear.</string>
+    <string name="app_tagline">Air raid alerts for your region from Mind, with a different vibration and sound for drones, missiles and the all-clear.</string>
 
     <string name="channel_drones">Drone alert</string>
     <string name="channel_missiles">Missile alert</string>
     <string name="channel_end">All clear</string>
 
-    <!-- alert_*: also used by the server as FCM loc keys (AirAlertNotifier.cs). Keep the names. -->
-    <string name="alert_general_title">🚨 Air raid alert in Kyiv</string>
+    <!-- alert_*: also used by the server as FCM loc keys (AirAlertNotifier.cs). Keep the names.
+         Titles get the region as two arguments, Ukrainian then English: English uses %2$s. -->
+    <string name="alert_general_title" formatted="true">🚨 Air raid alert: %2$s</string>
     <string name="alert_general_body">Go to a shelter.</string>
-    <string name="alert_drones_title">🛩️ Kyiv alert: attack drones</string>
+    <string name="alert_drones_title" formatted="true">🛩️ Attack drones: %2$s</string>
     <string name="alert_drones_body">Drone attack threat. Go to a shelter.</string>
-    <string name="alert_missiles_title">🚀 Kyiv alert: missile threat</string>
+    <string name="alert_missiles_title" formatted="true">🚀 Missile threat: %2$s</string>
     <string name="alert_missiles_body">Missile strike threat! Go to a shelter now.</string>
-    <string name="alert_end_title">✅ All clear in Kyiv</string>
+    <string name="alert_end_title" formatted="true">✅ All clear: %2$s</string>
     <string name="alert_end_body">The alert is over.</string>
     <string name="alert_end_duration_minutes">The alert lasted %1$s min.</string>
     <string name="alert_end_duration_hours">The alert lasted %1$s h %2$s min.</string>
     <string name="alert_test_body">This is a test. Nothing is happening.</string>
 
-    <string name="status_title">Kyiv now</string>
+    <string name="region_title">Your region</string>
+    <string name="region_pick_title">Alerts for which region?</string>
+    <string name="region_changed">Alerts now come for: %1$s</string>
+    <string name="regions_unavailable">Could not load the regions. Check the connection and try again.</string>
     <string name="status_unknown">Status unknown</string>
     <string name="status_calm">No alert</string>
     <string name="status_general">Air raid alert</string>
@@ -37,7 +41,7 @@
     <string name="register_hint">A new account works after an administrator approves it.</string>
     <string name="use_key">I have a connection key</string>
     <string name="sign_in_failed">Could not sign in: %1$s</string>
-    <string name="key_hint">Instead of signing in: in Mind open Profile → Air raid alerts in Kyiv → Create connection key, then paste the key here.</string>
+    <string name="key_hint">Instead of signing in: in Mind open Profile → Air raid alerts → Create connection key, then paste the key here.</string>
     <string name="key_label">Connection key</string>
     <string name="key_required">Paste the key from Mind</string>
     <string name="connect">Connect</string>

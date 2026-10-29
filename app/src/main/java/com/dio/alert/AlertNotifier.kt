@@ -82,7 +82,7 @@ object AlertNotifier {
     }
 
     /** [minutes] is how long the alert lasted (all-clear only, when the server knows it). */
-    fun show(context: Context, kind: String, minutes: Int?, isTest: Boolean) {
+    fun show(context: Context, kind: String, region: Region, minutes: Int?, isTest: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -96,7 +96,8 @@ object AlertNotifier {
             else -> R.string.alert_general_title to R.string.alert_general_body
         }
 
-        val title = context.getString(titleRes)
+        // Same arguments as the server's title_loc_args: Ukrainian strings use the first, English the second.
+        val title = context.getString(titleRes, region.name, region.nameEn)
         val body = when {
             isTest -> context.getString(R.string.alert_test_body)
             kind == "end" && minutes != null -> formatDuration(context, minutes)

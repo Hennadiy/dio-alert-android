@@ -11,11 +11,11 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 
 **Короткий опис** (≤ 80 символів):
 
-> Повітряні тривоги в Києві: окрема вібрація й звук для дронів, ракет і відбою
+> Повітряні тривоги у вашій області: окрема вібрація й звук для дронів і ракет
 
 **Повний опис:**
 
-> Dio Alert сповіщає про повітряні тривоги в Києві й одразу каже, що саме загрожує, — без погляду на екран.
+> Dio Alert сповіщає про повітряні тривоги у вибраному регіоні — будь-якій області України чи Києві — й одразу каже, що саме загрожує, без погляду на екран.
 >
 > • Дрони — 2 короткі вібрації ×3 і гудіння
 > • Ракети — 3 середні вібрації ×5 і сирена
@@ -33,11 +33,11 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 
 **Short description** (≤ 80 characters):
 
-> Kyiv air raid alerts with a distinct vibration and sound for drones and missiles
+> Air raid alerts for your region, with distinct vibration and sound per threat
 
 **Full description:**
 
-> Dio Alert notifies you of air raid alerts in Kyiv and tells you what the threat is — without looking at the screen.
+> Dio Alert notifies you of air raid alerts in the region you pick (any oblast of Ukraine, or Kyiv) and tells you what the threat is — without looking at the screen.
 >
 > • Drones — 2 short vibrations ×3 and a buzz
 > • Missiles — 3 medium vibrations ×5 and a siren
@@ -57,7 +57,7 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 - **App access:** Sign-in required. Give the reviewers a Mind test account (email + password) that an admin has approved. Note the login page has a reCAPTCHA checkbox.
 - **Target audience:** 18+.
 - **Data safety:**
-  - Collected: *Email address* (account management; not shared), *Device or other IDs* (the push token; app functionality; not shared).
+  - Collected: *Email address* and *Name* (account management, app functionality; not shared), *Device or other IDs* (the push token; app functionality; not shared), *Approximate location* (the region the user picks, not from GPS; app functionality; not shared).
   - Data is encrypted in transit: Yes. Users can request deletion: Yes (sign out deletes the phone's data; account deletion by email).
 - **Content rating:** questionnaire → no violence/sexual content/gambling etc.; category Utility.
 - **Government apps:** No. **Financial features:** none. **Health:** No. **News app:** No.

@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">Повітряні тривоги в Києві з Mind: окрема вібрація й звук для дронів, ракет і відбою.</string>
+    <string name="app_tagline">Повітряні тривоги у вашому регіоні з Mind: окрема вібрація й звук для дронів, ракет і відбою.</string>
 
     <string name="channel_drones">Тривога: дрони</string>
     <string name="channel_missiles">Тривога: ракети</string>
     <string name="channel_end">Відбій</string>
 
-    <string name="alert_general_title">🚨 Повітряна тривога в Києві</string>
+    <string name="alert_general_title" formatted="true">🚨 Повітряна тривога: %1$s</string>
     <string name="alert_general_body">Пройдіть в укриття.</string>
-    <string name="alert_drones_title">🛩️ Тривога в Києві: ударні дрони</string>
+    <string name="alert_drones_title" formatted="true">🛩️ Ударні дрони: %1$s</string>
     <string name="alert_drones_body">Загроза атаки БпЛА. Пройдіть в укриття.</string>
-    <string name="alert_missiles_title">🚀 Тривога в Києві: ракетна загроза</string>
+    <string name="alert_missiles_title" formatted="true">🚀 Ракетна загроза: %1$s</string>
     <string name="alert_missiles_body">Загроза ракетного удару! Негайно в укриття.</string>
-    <string name="alert_end_title">✅ Відбій тривоги в Києві</string>
+    <string name="alert_end_title" formatted="true">✅ Відбій тривоги: %1$s</string>
     <string name="alert_end_body">Тривогу скасовано.</string>
     <string name="alert_end_duration_minutes">Тривога тривала %1$s хв.</string>
     <string name="alert_end_duration_hours">Тривога тривала %1$s год %2$s хв.</string>
     <string name="alert_test_body">Це перевірка. Нічого не відбувається.</string>
 
-    <string name="status_title">Київ зараз</string>
+    <string name="region_title">Ваш регіон</string>
+    <string name="region_pick_title">Тривоги для якого регіону?</string>
+    <string name="region_changed">Тепер тривоги приходять для: %1$s</string>
+    <string name="regions_unavailable">Не вдалося завантажити регіони. Перевірте з'єднання й спробуйте ще раз.</string>
     <string name="status_unknown">Стан невідомий</string>
     <string name="status_calm">Тривоги немає</string>
     <string name="status_general">Повітряна тривога</string>
@@ -35,7 +38,7 @@
     <string name="register_hint">Новий акаунт запрацює після схвалення адміністратором.</string>
     <string name="use_key">У мене є ключ підключення</string>
     <string name="sign_in_failed">Не вдалося увійти: %1$s</string>
-    <string name="key_hint">Замість входу: у Mind відкрийте Профіль → Повітряна тривога в Києві → Створити ключ підключення й вставте ключ сюди.</string>
+    <string name="key_hint">Замість входу: у Mind відкрийте Профіль → Повітряна тривога → Створити ключ підключення й вставте ключ сюди.</string>
     <string name="key_label">Ключ підключення</string>
     <string name="key_required">Вставте ключ із Mind</string>
     <string name="connect">Підключити</string>
