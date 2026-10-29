@@ -25,7 +25,7 @@ jobs:
       # No Gradle wrapper in the repo: CI installs this Gradle version itself.
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11.1'
+          gradle-version: '8.13'
 
       - name: Firebase config
         env:
