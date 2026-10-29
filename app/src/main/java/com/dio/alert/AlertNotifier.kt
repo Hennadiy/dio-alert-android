@@ -9,27 +9,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.AudioAttributes
-import android.net.Uri
 import android.os.Build
-import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 /**
- * Shows air alert notifications. Android takes a notification's vibration and sound from
- * its channel, so every alert kind has a channel of its own; that is the whole reason this
- * is a native app rather than web push.
+ * Shows air alert notifications. Alerts arrive as data-only FCM messages (AlertMessagingService),
+ * so the app always builds the notification itself. Android takes a notification's vibration from
+ * its channel, so every alert kind has a channel of its own; the sound is played by AlertSound on
+ * the alarm stream, because channel sounds were silent on some phones.
  *
- * Usually Android shows alerts itself from the FCM message (the server names the channel
- * and these string resources), so this only runs while the app is open, and for the local
- * tests; it shows them the same way. The channel ids and string names are part of the
- * server contract (AirAlertNotifier.cs in mind-portal-service): rename them together.
- *
- * A channel's sound and vibration are fixed once it is created on the phone. To change
- * them, bump the channel id (…_v2) here and on the server so a new channel is created.
+ * A channel's settings are fixed once it is created on the phone. To change the vibration, bump
+ * the channel id (…_v4) and add the old one to OBSOLETE_CHANNELS.
  */
 object AlertNotifier {
     // FCM displays with this tag and id 0; using the same means any alert, shown by FCM or
@@ -40,20 +33,22 @@ object AlertNotifier {
     private enum class Channel(
         val id: String,
         @StringRes val nameRes: Int,
-        @RawRes val soundRes: Int,
         val vibration: LongArray
     ) {
         // 2 short pulses, 3 times.
-        DRONES("alert_drones_v2", R.string.channel_drones, R.raw.alert_drones, pulses(2, 150, 100, 3, 600)),
+        DRONES("alert_drones_v3", R.string.channel_drones, pulses(2, 150, 100, 3, 600)),
         // 3 medium pulses, 5 times.
-        MISSILES("alert_missiles_v2", R.string.channel_missiles, R.raw.alert_missiles, pulses(3, 400, 150, 5, 600)),
+        MISSILES("alert_missiles_v3", R.string.channel_missiles, pulses(3, 400, 150, 5, 600)),
         // 1 long pulse, 2 times.
-        END("alert_end_v2", R.string.channel_end, R.raw.alert_end, pulses(1, 1500, 0, 2, 600))
+        END("alert_end_v3", R.string.channel_end, pulses(1, 1500, 0, 2, 600))
     }
 
-    // v1 channels pointed at their sounds by numeric resource id, which moves when a new
-    // version adds resources, so they went silent after an update. Removed on start.
-    private val OBSOLETE_CHANNELS = listOf("alert_drones_v1", "alert_missiles_v1", "alert_end_v1")
+    // v1 pointed at its sounds by numeric resource id (silent after updates); v2 played the sound
+    // through the channel (silent on some phones). Removed on start.
+    private val OBSOLETE_CHANNELS = listOf(
+        "alert_drones_v1", "alert_missiles_v1", "alert_end_v1",
+        "alert_drones_v2", "alert_missiles_v2", "alert_end_v2"
+    )
 
     /** An alert of unknown type uses the missile channel: assume the worst. */
     private fun channelFor(kind: String): Channel = when (kind) {
@@ -63,21 +58,13 @@ object AlertNotifier {
     }
 
     fun createChannels(context: Context) {
-        // Alarm usage plays at alarm volume, so the sound is heard with the ringer on
-        // silent or vibrate, and Do Not Disturb lets alarms through by default.
-        val audio = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ALARM)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
         val manager = context.getSystemService(NotificationManager::class.java)
         OBSOLETE_CHANNELS.forEach { manager.deleteNotificationChannel(it) }
         Channel.entries.forEach { channel ->
             manager.createNotificationChannel(
                 NotificationChannel(channel.id, context.getString(channel.nameRes), NotificationManager.IMPORTANCE_HIGH).apply {
-                    // By name, not numeric id: the channel keeps this URI for good, and ids change between builds.
-                    val sound = context.resources.getResourceEntryName(channel.soundRes)
-                    setSound(Uri.parse("android.resource://${context.packageName}/raw/$sound"), audio)
+                    // No channel sound: AlertSound plays it, so it isn't heard twice.
+                    setSound(null, null)
                     enableVibration(true)
                     vibrationPattern = channel.vibration
                     enableLights(true)
@@ -88,7 +75,7 @@ object AlertNotifier {
         }
     }
 
-    /** [minutes] is how long the alert lasted (all-clear only, when the server knows it). */
+    /** [minutes] is how long the alert lasted (all-clear only, when the server knows it). The sound is AlertSound's job. */
     fun show(context: Context, kind: String, region: Region, minutes: Int?, isTest: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -103,7 +90,7 @@ object AlertNotifier {
             else -> R.string.alert_general_title to R.string.alert_general_body
         }
 
-        // Same arguments as the server's title_loc_args: Ukrainian strings use the first, English the second.
+        // Ukrainian strings use the first argument, English ones the second.
         val title = context.getString(titleRes, region.name, region.nameEn)
         val body = when {
             isTest -> context.getString(R.string.alert_test_body)

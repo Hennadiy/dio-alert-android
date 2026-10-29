@@ -5,9 +5,10 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
 /**
- * Alerts from Mind are FCM notification messages naming the channel of the alert kind:
- * with the app in the background Android shows them itself, without this service. While
- * the app is open Android hands them here instead, and the app shows the same notification.
+ * Alerts from Mind are data-only, high-priority FCM messages: Android wakes the app for each
+ * one, here, whether it is open or not. The app shows the notification (its channel vibrates)
+ * and plays the kind's sound on the alarm stream, waiting until it ends so the app isn't put
+ * back to sleep mid-siren.
  */
 class AlertMessagingService : FirebaseMessagingService() {
 
@@ -15,6 +16,7 @@ class AlertMessagingService : FirebaseMessagingService() {
         val kind = message.data["kind"] ?: return
         val region = message.data["region"]?.let { Region(0, it, message.data["regionEn"] ?: it) } ?: Prefs(this).region
         AlertNotifier.show(this, kind, region, message.data["minutes"]?.toIntOrNull(), message.data["test"] == "1")
+        AlertSound.playAndWait(this, kind)
     }
 
     // Firebase rotates tokens now and then; the server only knows the one we registered.
