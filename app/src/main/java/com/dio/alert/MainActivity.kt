@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var signInButton: MaterialButton
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
+    private lateinit var batteryHint: TextView
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         updateSetupButtons()
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         signInButton = findViewById(R.id.signInButton)
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
+        batteryHint = findViewById(R.id.batteryHint)
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
         findViewById<MaterialButton>(R.id.languageButton).setOnClickListener { pickLanguage() }
         findViewById<TextView>(R.id.sourceText).setOnClickListener {
@@ -316,7 +318,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateSetupButtons() {
         notificationsButton.visibility = if (hasNotificationPermission()) View.GONE else View.VISIBLE
         val power = getSystemService(PowerManager::class.java)
-        batteryButton.visibility = if (power.isIgnoringBatteryOptimizations(packageName)) View.GONE else View.VISIBLE
+        val batteryVisibility = if (power.isIgnoringBatteryOptimizations(packageName)) View.GONE else View.VISIBLE
+        batteryButton.visibility = batteryVisibility
+        batteryHint.visibility = batteryVisibility
     }
 
     private fun hasNotificationPermission(): Boolean =
@@ -330,11 +334,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     // An alert app is exactly the case this exemption exists for: a delayed alert is useless.
-    // Google Play restricts the direct one-tap exemption request, and the optimisation list
-    // opens filtered to apps already exempt, so this opens Dio Alert's own settings page,
-    // where Battery → Unrestricted is on every maker's Android.
+    // Google Play restricts the direct one-tap exemption request, so this opens the battery
+    // optimisation list. It opens filtered to apps already exempt; the hint under the button
+    // says to switch it to all apps and pick Dio Alert.
     private fun requestBatteryExemption() {
-        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
+        startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
     }
 
     private fun openNotificationSettings() {

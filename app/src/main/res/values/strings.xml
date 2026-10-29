@@ -51,9 +51,10 @@
     <string name="key_revoked">The key was revoked in Mind. Create a new one to connect again.</string>
 
     <string name="setup_title">Phone setup</string>
-    <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, set Battery to “Unrestricted” on the Dio Alert settings page that the button opens.</string>
+    <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, turn off battery optimisation for Dio Alert.</string>
     <string name="allow_notifications">Allow notifications</string>
     <string name="battery_exemption">Turn off battery optimisation</string>
+    <string name="battery_hint">The list opens showing only apps that are already not optimised. At the top, switch it to “All apps”, find Dio Alert, tap it and choose “Don’t optimise”. On Samsung or Xiaomi it may be easier: Settings → Apps → Dio Alert → Battery → “Unrestricted”.</string>
     <string name="notification_settings">Notification settings</string>
 
     <string name="request_failed">Request failed: %1$s</string>
