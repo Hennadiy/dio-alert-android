@@ -20,6 +20,10 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 - Instead of signing in, a key made in Mind (Profile → Air raid alerts → Create connection key) can be pasted; signing out then leaves that key alone.
 - The app calls `api/AirAlert/RegisterDevice` with its FCM token on connect and on every start (token rotation, "last seen"). Revoking the key in Mind disconnects the phone.
 
+## Languages
+
+English (`values/`, the default) and Ukrainian (`values-uk/`): a phone set to Ukrainian gets Ukrainian, any other language gets English. The **Language** button at the bottom picks one for the app only (AppCompat per-app languages; on Android 13+ also in Settings → Apps → Dio Alert → Language, from `res/xml/locales_config.xml`). Region names follow the app's language.
+
 ## Changing sounds or vibration
 
 - Sounds: edit and run `python tools/make_sounds.py` (needs numpy); it writes `app/src/main/res/raw/*.wav`. Any short wav/ogg/mp3 works there.

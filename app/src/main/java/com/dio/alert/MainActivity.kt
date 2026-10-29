@@ -13,6 +13,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
+        findViewById<MaterialButton>(R.id.languageButton).setOnClickListener { pickLanguage() }
         findViewById<TextView>(R.id.sourceText).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ALERTS_SOURCE_URL)))
         }
@@ -200,7 +203,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateRegion() {
-        regionButton.text = prefs.region.displayName
+        regionButton.text = prefs.region.displayName(this)
     }
 
     /** Lists Mind's regions (or the last list seen, offline); picking one re-registers the phone for it. */
@@ -222,7 +225,7 @@ class MainActivity : AppCompatActivity() {
             val current = regions.indexOfFirst { it.uid == prefs.region.uid }
             MaterialAlertDialogBuilder(this@MainActivity)
                 .setTitle(R.string.region_pick_title)
-                .setSingleChoiceItems(regions.map { it.displayName }.toTypedArray(), current) { dialog, which ->
+                .setSingleChoiceItems(regions.map { it.displayName(this@MainActivity) }.toTypedArray(), current) { dialog, which ->
                     dialog.dismiss()
                     changeRegion(regions[which])
                 }
@@ -247,7 +250,7 @@ class MainActivity : AppCompatActivity() {
                 val token = FirebaseMessaging.getInstance().token.await()
                 withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, region.uid) }
                 prefs.registeredToken = token
-                toast(getString(R.string.region_changed, region.displayName))
+                toast(getString(R.string.region_changed, region.displayName(this@MainActivity)))
             } catch (e: Exception) {
                 // The server still sends the old region's alerts: say so and show that region again.
                 prefs.region = previous
@@ -335,6 +338,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun openNotificationSettings() {
         startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+    }
+
+    /**
+     * As on the phone (Ukrainian on a Ukrainian phone, English otherwise), or one of the
+     * two for this app only. AppCompat recreates the activity in the new language.
+     */
+    private fun pickLanguage() {
+        val tags = listOf("", "uk", "en")
+        val current = tags.indexOf(AppCompatDelegate.getApplicationLocales().toLanguageTags()).coerceAtLeast(0)
+        val names = arrayOf(getString(R.string.language_system), "Українська", "English")
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.language_title)
+            .setSingleChoiceItems(names, current) { dialog, which ->
+                dialog.dismiss()
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tags[which]))
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun toast(resId: Int) = toast(getString(resId))

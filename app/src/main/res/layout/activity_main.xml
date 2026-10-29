@@ -207,12 +207,20 @@
         </com.google.android.material.card.MaterialCardView>
 
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/languageButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="@string/language_button" />
+
         <!-- Where the alerts come from; opens the site. -->
         <TextView
             android:id="@+id/sourceText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
             android:padding="8dp"

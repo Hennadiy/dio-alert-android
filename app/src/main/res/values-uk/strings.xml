@@ -54,6 +54,9 @@
     <string name="notification_settings">Налаштування сповіщень</string>
 
     <string name="request_failed">Помилка запиту: %1$s</string>
+    <string name="language_button">Мова: українська</string>
+    <string name="language_title">Мова</string>
+    <string name="language_system">Як на телефоні</string>
     <string name="source_note">Дані про тривоги надає alerts.in.ua</string>
     <string name="version_label">Версія %1$s</string>
 </resources>

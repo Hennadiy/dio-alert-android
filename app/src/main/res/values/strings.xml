@@ -57,6 +57,9 @@
     <string name="notification_settings">Notification settings</string>
 
     <string name="request_failed">Request failed: %1$s</string>
+    <string name="language_button">Language: English</string>
+    <string name="language_title">Language</string>
+    <string name="language_system">As on the phone</string>
     <string name="source_note">Alert data comes from alerts.in.ua</string>
     <string name="version_label">Version %1$s</string>
 </resources>
