@@ -25,6 +25,8 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 >
 > Тривоги надходять із сервісу Mind (дані alerts.in.ua). Для роботи потрібен акаунт Mind: увійдіть у застосунку або створіть акаунт на сайті.
 >
+> Dio Alert — неофіційний застосунок, не пов'язаний з державними органами. Він не замінює офіційних сповіщень: стежте також за сиренами, застосунком «Повітряна тривога» та повідомленнями влади.
+>
 > Без реклами й без відстеження.
 
 ## English (en-US)
@@ -44,6 +46,8 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 > Alerts play at alarm volume, even on silent. If missiles join an ongoing alert, the app warns you again.
 >
 > Alerts come from the Mind service (alerts.in.ua data). A Mind account is required: sign in in the app or create an account on the website.
+>
+> Dio Alert is an unofficial app, not affiliated with any government body. It does not replace official warnings: also follow sirens, the official "Air Alert" app and announcements from the authorities.
 >
 > No ads, no tracking.
 
