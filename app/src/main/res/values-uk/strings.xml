@@ -21,7 +21,7 @@
     <string name="region_title">Ваш регіон</string>
     <string name="region_pick_title">Тривоги для якого регіону?</string>
     <string name="region_changed">Тепер тривоги приходять для: %1$s</string>
-    <string name="regions_unavailable">Не вдалося завантажити регіони. Перевірте з'єднання й спробуйте ще раз.</string>
+    <string name="regions_unavailable">Не вдалося завантажити регіони. Перевірте з’єднання й спробуйте ще раз.</string>
     <string name="status_unknown">Стан невідомий</string>
     <string name="status_calm">Тривоги немає</string>
     <string name="status_general">Повітряна тривога</string>
