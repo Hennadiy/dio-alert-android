@@ -44,12 +44,16 @@ object AlertNotifier {
         val vibration: LongArray
     ) {
         // 2 short pulses, 3 times.
-        DRONES("alert_drones_v1", R.string.channel_drones, R.raw.alert_drones, pulses(2, 150, 100, 3, 600)),
+        DRONES("alert_drones_v2", R.string.channel_drones, R.raw.alert_drones, pulses(2, 150, 100, 3, 600)),
         // 3 medium pulses, 5 times.
-        MISSILES("alert_missiles_v1", R.string.channel_missiles, R.raw.alert_missiles, pulses(3, 400, 150, 5, 600)),
+        MISSILES("alert_missiles_v2", R.string.channel_missiles, R.raw.alert_missiles, pulses(3, 400, 150, 5, 600)),
         // 1 long pulse, 2 times.
-        END("alert_end_v1", R.string.channel_end, R.raw.alert_end, pulses(1, 1500, 0, 2, 600))
+        END("alert_end_v2", R.string.channel_end, R.raw.alert_end, pulses(1, 1500, 0, 2, 600))
     }
+
+    // v1 channels pointed at their sounds by numeric resource id, which moves when a new
+    // version adds resources, so they went silent after an update. Removed on start.
+    private val OBSOLETE_CHANNELS = listOf("alert_drones_v1", "alert_missiles_v1", "alert_end_v1")
 
     /** An alert of unknown type uses the missile channel: assume the worst. */
     private fun channelFor(kind: String): Channel = when (kind) {
@@ -67,10 +71,13 @@ object AlertNotifier {
             .build()
 
         val manager = context.getSystemService(NotificationManager::class.java)
+        OBSOLETE_CHANNELS.forEach { manager.deleteNotificationChannel(it) }
         Channel.entries.forEach { channel ->
             manager.createNotificationChannel(
                 NotificationChannel(channel.id, context.getString(channel.nameRes), NotificationManager.IMPORTANCE_HIGH).apply {
-                    setSound(Uri.parse("android.resource://${context.packageName}/${channel.soundRes}"), audio)
+                    // By name, not numeric id: the channel keeps this URI for good, and ids change between builds.
+                    val sound = context.resources.getResourceEntryName(channel.soundRes)
+                    setSound(Uri.parse("android.resource://${context.packageName}/raw/$sound"), audio)
                     enableVibration(true)
                     vibrationPattern = channel.vibration
                     enableLights(true)

@@ -39,7 +39,7 @@
         <!-- Used by FCM if a message ever names no channel or an unknown one. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="alert_missiles_v1" />
+            android:value="alert_missiles_v2" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_alert" />

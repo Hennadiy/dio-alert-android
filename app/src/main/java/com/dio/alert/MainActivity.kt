@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var signInButton: MaterialButton
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
+    private lateinit var batteryHint: TextView
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         updateSetupButtons()
@@ -69,6 +70,8 @@ class MainActivity : AppCompatActivity() {
         signInButton = findViewById(R.id.signInButton)
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
+        batteryHint = findViewById(R.id.batteryHint)
+        batteryHint.setText(batteryHintRes())
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
         findViewById<MaterialButton>(R.id.languageButton).setOnClickListener { pickLanguage() }
         findViewById<TextView>(R.id.sourceText).setOnClickListener {
@@ -86,6 +89,9 @@ class MainActivity : AppCompatActivity() {
         notificationsButton.setOnClickListener { requestNotifications() }
         batteryButton.setOnClickListener { requestBatteryExemption() }
         findViewById<MaterialButton>(R.id.channelSettingsButton).setOnClickListener { openNotificationSettings() }
+        findViewById<MaterialButton>(R.id.guideButton).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SETUP_GUIDE_URL)))
+        }
 
         // Android 13+ shows nothing until the user allows notifications; ask as soon as alerts can arrive.
         if (prefs.isConnected && !hasNotificationPermission()) {
@@ -316,7 +322,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateSetupButtons() {
         notificationsButton.visibility = if (hasNotificationPermission()) View.GONE else View.VISIBLE
         val power = getSystemService(PowerManager::class.java)
-        batteryButton.visibility = if (power.isIgnoringBatteryOptimizations(packageName)) View.GONE else View.VISIBLE
+        val batteryVisibility = if (power.isIgnoringBatteryOptimizations(packageName)) View.GONE else View.VISIBLE
+        batteryButton.visibility = batteryVisibility
+        batteryHint.visibility = batteryVisibility
     }
 
     private fun hasNotificationPermission(): Boolean =
@@ -333,6 +341,18 @@ class MainActivity : AppCompatActivity() {
     // Google Play restricts the direct one-tap exemption request, and the optimisation list
     // opens filtered to apps already exempt, so this opens Dio Alert's own settings page,
     // where Battery → Unrestricted is on every maker's Android.
+    /** Where "unrestricted" is on this phone's settings page: it moved between Android versions, and Samsung and Xiaomi have their own. */
+    private fun batteryHintRes(): Int {
+        val maker = Build.MANUFACTURER.lowercase()
+        return when {
+            maker == "samsung" -> R.string.battery_hint_samsung
+            maker in setOf("xiaomi", "redmi", "poco") -> R.string.battery_hint_xiaomi
+            Build.VERSION.SDK_INT >= 34 -> R.string.battery_hint_14
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> R.string.battery_hint_12
+            else -> R.string.battery_hint_8
+        }
+    }
+
     private fun requestBatteryExemption() {
         startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
     }
@@ -363,6 +383,8 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val ALERTS_SOURCE_URL = "https://alerts.in.ua/"
+        /** Mind's Dio Alert guide: the battery setting per Android version and maker, and what to check when there is no sound. */
+        const val SETUP_GUIDE_URL = "https://mind.dio-quiz.com.ua/guides?tab=dioAlert"
     }
 
     private fun toast(text: String) {

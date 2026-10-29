@@ -189,11 +189,19 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/allow_notifications" />
 
+                <!-- What to pick on the page the battery button opens, for this phone. -->
+                <TextView
+                    android:id="@+id/batteryHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/batteryButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:text="@string/battery_exemption" />
 
                 <com.google.android.material.button.MaterialButton
@@ -203,6 +211,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/notification_settings" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/guideButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/setup_guide" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

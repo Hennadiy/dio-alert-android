@@ -54,6 +54,12 @@
     <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, set Battery to “Unrestricted” on the Dio Alert settings page that the button opens.</string>
     <string name="allow_notifications">Allow notifications</string>
     <string name="battery_exemption">Turn off battery optimisation</string>
+    <string name="battery_hint_14">The button opens Dio Alert’s settings. Open “App battery usage”, tap the text “Allow background usage” (not the switch) and choose “Unrestricted”.</string>
+    <string name="battery_hint_12">The button opens Dio Alert’s settings. Open “Battery” and choose “Unrestricted”.</string>
+    <string name="battery_hint_8">The button opens Dio Alert’s settings. Open “Battery” → “Battery optimisation”, switch the list at the top to “All apps”, find Dio Alert and choose “Don’t optimise”.</string>
+    <string name="battery_hint_samsung">The button opens Dio Alert’s settings. Open “Battery” and choose “Unrestricted”.</string>
+    <string name="battery_hint_xiaomi">The button opens Dio Alert’s settings. Open “Battery saver” and choose “No restrictions”, and turn on “Autostart”.</string>
+    <string name="setup_guide">Detailed setup guide</string>
     <string name="notification_settings">Notification settings</string>
 
     <string name="request_failed">Request failed: %1$s</string>
