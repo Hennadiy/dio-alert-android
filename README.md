@@ -42,7 +42,7 @@ One-time setup:
 1. **Firebase:** create a project at console.firebase.google.com, add an Android app with package `com.dio.alert`, download `google-services.json` and either commit it to `app/` or store it as the repo secret `GOOGLE_SERVICES_JSON`. In Project settings → Service accounts, generate a private key and give that JSON to the Mind server (see the service's CLAUDE.md, `FirebaseServiceAccountPath`).
 2. **Upload key:** the secrets `KEYSTORE_BASE64` (`base64 -w0 release.p12`), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` (set; the key itself is kept outside the repo). Losing it means asking Google Play support to reset the upload key.
 
-Release: every push to `main` builds the AAB and, once Play is connected, uploads it to Google Play (see below).
+Release: every push to `main` builds the AAB; publishing to Google Play is a manual run (see below).
 
 ## Install on the phone
 
@@ -52,7 +52,7 @@ Install **Dio Alert** from Google Play (during internal testing: accept the test
 
 The app is distributed only through Google Play; Play installs and updates it (Mind's profile card links to the store page). Each build is an AAB with version name `1.0.<run>` and version code = the CI run number.
 
-CI uploads the AAB to the **internal testing** track on every push to `main` once the secret `PLAY_SERVICE_ACCOUNT_JSON` is set (a Google Cloud service account with release permission in Play Console). Before the app's first review Play only takes draft releases; afterwards set the repo variable `PLAY_RELEASE_STATUS=completed`. The very first AAB has to be uploaded by hand in Play Console (download it from the run's artifacts).
+Pushes only build the AAB (an artifact of the run). To publish, run the workflow by hand: **Actions → Build for Google Play → Run workflow**, tick **publish** and optionally write release notes; that build goes to the **internal testing** track and rolls out to testers (repo variable `PLAY_RELEASE_STATUS=draft` makes it a draft instead). It needs the secret `PLAY_SERVICE_ACCOUNT_JSON`: a Google Cloud service account (project `dio-alert`) with a JSON key, invited in Play Console → Users and permissions with release rights for Dio Alert. From the command line: `gh workflow run build.yml -f publish=true -f notes="..."`.
 
 The `KEYSTORE_*` secrets are the **upload key**; Play re-signs the app with its own app signing key (Play App Signing).
 

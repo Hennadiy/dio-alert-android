@@ -1,12 +1,22 @@
 name: Build for Google Play
 
-# Every push builds the Google Play bundle (AAB, version 1.0.<run>, version code = run number).
-# On main it is uploaded to Play's internal testing track once PLAY_SERVICE_ACCOUNT_JSON is set.
+# Every push builds the Google Play bundle (AAB, version 1.0.<run>, version code = run number)
+# as an artifact. It goes to Play's internal testing track only when asked: run this workflow
+# by hand (Actions → Build for Google Play → Run workflow) with "publish" ticked.
 # Play installs and updates the app; there are no GitHub releases.
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Upload this build to Google Play internal testing
+        type: boolean
+        default: false
+      notes:
+        description: Release notes (English, shown to testers)
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -85,24 +95,32 @@ jobs:
           name: dio-alert
           path: dio-alert.aab
 
-      # Google Play, internal testing track. Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a Play
-      # Console service account) and a first AAB uploaded by hand. While the app has never been
-      # reviewed Play only accepts draft releases; set the repo variable PLAY_RELEASE_STATUS to
-      # "completed" after that so releases roll out by themselves.
-      # Secrets can't appear in an if, so a step turns "is it set" into an env flag.
-      - name: Google Play configured?
+      # Google Play, internal testing track: only on a manual run with "publish" ticked.
+      # Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a service account invited in Play Console
+      # with release rights). The release rolls out to testers at once ("completed"); set the
+      # repo variable PLAY_RELEASE_STATUS to "draft" to review it in Play Console first.
+      - name: Check Google Play upload
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          NOTES: ${{ inputs.notes }}
         run: |
-          if [ -n "$PLAY_SERVICE_ACCOUNT_JSON" ]; then echo "PLAY_UPLOAD=1" >> "$GITHUB_ENV"; fi
+          if [ "$FIREBASE_PLACEHOLDER" = "1" ]; then
+            echo "::error::A build with the placeholder Firebase config can't receive alerts; not publishing."; exit 1
+          fi
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::The PLAY_SERVICE_ACCOUNT_JSON secret is not set."; exit 1
+          fi
+          mkdir -p whatsnew
+          if [ -n "$NOTES" ]; then printf '%s' "$NOTES" > whatsnew/whatsnew-en-US; fi
 
       - name: Upload to Google Play
-        # Never a placeholder build: such a bundle can't receive alerts.
-        if: env.FIREBASE_PLACEHOLDER != '1' && github.ref == 'refs/heads/main' && env.PLAY_UPLOAD == '1'
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.dio.alert
           releaseFiles: dio-alert.aab
           track: internal
-          status: ${{ vars.PLAY_RELEASE_STATUS || 'draft' }}
+          status: ${{ vars.PLAY_RELEASE_STATUS || 'completed' }}
+          whatsNewDirectory: whatsnew
