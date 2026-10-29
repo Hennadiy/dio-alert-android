@@ -54,16 +54,10 @@
     <string name="captcha_not_configured">sign-in isn’t set up in this version of the app yet</string>
     <string name="no_connection">no connection to Mind</string>
     <string name="register_hint">A new account works after an administrator approves it.</string>
-    <string name="use_key">I have a connection key</string>
     <string name="sign_in_failed">Could not sign in: %1$s</string>
-    <string name="key_hint">Instead of signing in: in Mind open Profile → Air raid alerts → Create connection key, then paste the key here.</string>
-    <string name="key_label">Connection key</string>
-    <string name="key_required">Paste the key from Mind</string>
-    <string name="connect">Connect</string>
     <string name="disconnect">Sign out</string>
     <string name="connected">Connected</string>
-    <string name="connect_failed">Could not connect: %1$s</string>
-    <string name="key_revoked">The key was revoked in Mind. Create a new one to connect again.</string>
+    <string name="key_revoked">You were signed out in Mind. Sign in again to get alerts.</string>
 
     <string name="setup_title">Phone setup</string>
     <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, set Battery to “Unrestricted” on the Dio Alert settings page that the button opens.</string>
@@ -74,7 +68,6 @@
     <string name="battery_hint_8">The button opens Dio Alert’s settings. Open “Battery” → “Battery optimisation”, switch the list at the top to “All apps”, find Dio Alert and choose “Don’t optimise”.</string>
     <string name="battery_hint_samsung">The button opens Dio Alert’s settings. Open “Battery” and choose “Unrestricted”.</string>
     <string name="battery_hint_xiaomi">The button opens Dio Alert’s settings. Open “Battery saver” and choose “No restrictions”, and turn on “Autostart”.</string>
-    <string name="setup_guide">Detailed setup guide</string>
     <string name="notification_settings">Notification settings</string>
 
     <string name="request_failed">Request failed: %1$s</string>

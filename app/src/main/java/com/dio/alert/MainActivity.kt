@@ -38,9 +38,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var regionButton: MaterialButton
     private lateinit var statusText: TextView
     private lateinit var connectionText: TextView
-    private lateinit var keyInput: TextInputEditText
-    private lateinit var keyGroup: View
-    private lateinit var connectButton: MaterialButton
     private lateinit var disconnectButton: MaterialButton
     private lateinit var signInGroup: View
     private lateinit var signInButton: MaterialButton
@@ -73,9 +70,6 @@ class MainActivity : AppCompatActivity() {
         regionButton = findViewById(R.id.regionButton)
         statusText = findViewById(R.id.statusText)
         connectionText = findViewById(R.id.connectionText)
-        keyInput = findViewById(R.id.keyInput)
-        keyGroup = findViewById(R.id.keyGroup)
-        connectButton = findViewById(R.id.connectButton)
         disconnectButton = findViewById(R.id.disconnectButton)
         signInGroup = findViewById(R.id.signInGroup)
         signInButton = findViewById(R.id.signInButton)
@@ -102,17 +96,10 @@ class MainActivity : AppCompatActivity() {
         signInButton.setOnClickListener { if (isRegistering) register() else signIn() }
         modeButton.setOnClickListener { setRegistering(!isRegistering) }
         forgotButton.setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.MIND_URL + "forgot-password"))) }
-        findViewById<MaterialButton>(R.id.useKeyButton).setOnClickListener {
-            keyGroup.visibility = if (keyGroup.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-        }
-        connectButton.setOnClickListener { connect() }
         disconnectButton.setOnClickListener { disconnect() }
         notificationsButton.setOnClickListener { requestNotifications() }
         batteryButton.setOnClickListener { requestBatteryExemption() }
         findViewById<MaterialButton>(R.id.channelSettingsButton).setOnClickListener { openNotificationSettings() }
-        findViewById<MaterialButton>(R.id.guideButton).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SETUP_GUIDE_URL)))
-        }
 
         // Android 13+ shows nothing until the user allows notifications; ask as soon as alerts can arrive.
         if (prefs.isConnected && !hasNotificationPermission()) {
@@ -170,7 +157,6 @@ class MainActivity : AppCompatActivity() {
                 prefs.deviceKey = key
                 prefs.registeredToken = token
                 prefs.userEmail = signedInAs
-                prefs.keyCreatedByApp = true
                 passwordInput.setText("")
                 toast(R.string.connected)
                 if (!hasNotificationPermission()) requestNotifications()
@@ -221,44 +207,15 @@ class MainActivity : AppCompatActivity() {
         else -> e.message ?: e.javaClass.simpleName
     }
 
-    private fun connect() {
-        val key = keyInput.text?.toString()?.trim().orEmpty()
-        if (key.isEmpty()) {
-            keyInput.error = getString(R.string.key_required)
-            return
-        }
-
-        connectButton.isEnabled = false
-        lifecycleScope.launch {
-            try {
-                val token = FirebaseMessaging.getInstance().token.await()
-                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid) }
-                prefs.deviceKey = key
-                prefs.registeredToken = token
-                prefs.userEmail = null
-                prefs.keyCreatedByApp = false
-                keyInput.setText("")
-                toast(R.string.connected)
-                if (!hasNotificationPermission()) requestNotifications()
-            } catch (e: Exception) {
-                toast(getString(R.string.connect_failed, e.message ?: e.javaClass.simpleName))
-            } finally {
-                connectButton.isEnabled = true
-                updateConnection()
-            }
-        }
-    }
-
     private fun disconnect() {
         val key = prefs.deviceKey
         val token = prefs.registeredToken
-        val revokeKey = prefs.keyCreatedByApp
         prefs.clearConnection()
         updateConnection()
         if (key != null) {
             lifecycleScope.launch {
                 // Best effort: if it fails, the phone stays in Mind's list until it is removed there.
-                runCatching { withContext(Dispatchers.IO) { ApiClient.unregisterDevice(key, token, revokeKey) } }
+                runCatching { withContext(Dispatchers.IO) { ApiClient.unregisterDevice(key, token, revokeKey = true) } }
             }
         }
     }
@@ -388,7 +345,6 @@ class MainActivity : AppCompatActivity() {
         }
         connectionText.setTextColor(ContextCompat.getColor(this, if (connected) R.color.calm else R.color.danger))
         signInGroup.visibility = if (connected) View.GONE else View.VISIBLE
-        if (connected) keyGroup.visibility = View.GONE
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
         // Signed out, the phone gets no alerts: only signing in is offered.
         regionCard.visibility = if (connected) View.VISIBLE else View.GONE
@@ -459,8 +415,6 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val ALERTS_SOURCE_URL = "https://alerts.in.ua/"
-        /** Mind's Dio Alert guide: the battery setting per Android version and maker, and what to check when there is no sound. */
-        const val SETUP_GUIDE_URL = "https://mind.dio-quiz.com.ua/guides?tab=dioAlert"
     }
 
     private fun toast(text: String) {

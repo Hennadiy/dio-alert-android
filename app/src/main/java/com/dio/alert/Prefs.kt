@@ -17,15 +17,10 @@ class Prefs(context: Context) {
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
 
-    /** Set when connected by signing in; null when a key was pasted. */
+    /** Whom the app is signed in as. */
     var userEmail: String?
         get() = prefs.getString(KEY_EMAIL, null)
         set(value) = prefs.edit().putString(KEY_EMAIL, value).apply()
-
-    /** The app created the key on sign-in, so signing out revokes it. A pasted key is the user's to keep. */
-    var keyCreatedByApp: Boolean
-        get() = prefs.getBoolean(KEY_CREATED_BY_APP, false)
-        set(value) = prefs.edit().putBoolean(KEY_CREATED_BY_APP, value).apply()
 
     /** The region whose alerts this phone gets (kept when signing out). */
     var region: Region
@@ -46,7 +41,6 @@ class Prefs(context: Context) {
             .remove(KEY_DEVICE_KEY)
             .remove(KEY_TOKEN)
             .remove(KEY_EMAIL)
-            .remove(KEY_CREATED_BY_APP)
             .apply()
     }
 
@@ -54,7 +48,6 @@ class Prefs(context: Context) {
         private const val KEY_DEVICE_KEY = "device_key"
         private const val KEY_TOKEN = "fcm_token"
         private const val KEY_EMAIL = "user_email"
-        private const val KEY_CREATED_BY_APP = "key_created_by_app"
         private const val KEY_REGION = "region"
         private const val KEY_REGIONS = "regions"
 

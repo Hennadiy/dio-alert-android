@@ -18,12 +18,11 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 - Channel ids and `alert_*` string names are a contract with the server: rename them on both sides.
 - **Sign in** and **Create a Mind account** are the app's own forms. Instead of the web checkbox they use **reCAPTCHA Enterprise** for Android (`AppCaptcha.kt`, invisible: the SDK scores the request and Mind's server checks the score). Sign-in posts `api/User/AppSignIn`, and the server answers with a new **device key** for this phone; the app keeps only that key (header `X-Device-Key`). Registration posts `api/User/AppRegister`; an admin approves new accounts. **Forgot password?** opens Mind's page. **Sign out** unregisters the phone and revokes that key.
 - The reCAPTCHA key (type Android, package `com.dio.alert`, not secret) comes from the repo **variable** `RECAPTCHA_SITE_KEY` at build time (`BuildConfig.RECAPTCHA_SITE_KEY`); a build without it says sign-in isn't set up. The server needs the same key, the Cloud project id and an API key (see the service's CLAUDE.md).
-- Instead of signing in, a key made in Mind (Profile → Air raid alerts → Create connection key) can be pasted; signing out then leaves that key alone.
-- The app calls `api/AirAlert/RegisterDevice` with its FCM token on connect and on every start (token rotation, "last seen"). Revoking the key in Mind disconnects the phone.
+- The app calls `api/AirAlert/RegisterDevice` with its FCM token on sign-in and on every start (token rotation, "last seen"). Disconnecting the phone in Mind revokes its key and signs the app out.
 
 ## Phone setup help
 
-Above the battery button the app says what to pick on the settings page it opens, for the phone it runs on (`batteryHintRes()`: Android 14+, 12–13, 8–11, Samsung, Xiaomi). **Detailed setup guide** opens Mind's guide (`/guides?tab=dioAlert`): the same per phone, plus a no-sound checklist.
+Above the battery button the app says what to pick on the settings page it opens, for the phone it runs on (`batteryHintRes()`: Android 14+, 12–13, 8–11, Samsung, Xiaomi). Mind's guide (`/guides?tab=dioAlert`) has the same per phone, plus a no-sound checklist.
 
 ## Languages
 

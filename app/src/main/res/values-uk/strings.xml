@@ -51,16 +51,10 @@
     <string name="captcha_not_configured">вхід у цій версії застосунку ще не налаштовано</string>
     <string name="no_connection">немає з’єднання з Mind</string>
     <string name="register_hint">Новий акаунт запрацює після схвалення адміністратором.</string>
-    <string name="use_key">У мене є ключ підключення</string>
     <string name="sign_in_failed">Не вдалося увійти: %1$s</string>
-    <string name="key_hint">Замість входу: у Mind відкрийте Профіль → Повітряна тривога → Створити ключ підключення й вставте ключ сюди.</string>
-    <string name="key_label">Ключ підключення</string>
-    <string name="key_required">Вставте ключ із Mind</string>
-    <string name="connect">Підключити</string>
     <string name="disconnect">Вийти</string>
     <string name="connected">Підключено</string>
-    <string name="connect_failed">Не вдалося підключитися: %1$s</string>
-    <string name="key_revoked">Ключ відкликано в Mind. Створіть новий, щоб підключитися знову.</string>
+    <string name="key_revoked">Вас від’єднано в Mind. Увійдіть знову, щоб отримувати тривоги.</string>
 
     <string name="setup_title">Налаштування телефона</string>
     <string name="setup_hint">Тривоги звучать на гучності будильника, навіть у беззвучному режимі. Щоб їх ніщо не затримувало, дозвольте сповіщення, а на сторінці налаштувань Dio Alert, яку відкриє кнопка, виберіть Батарея → «Без обмежень».</string>
@@ -71,7 +65,6 @@
     <string name="battery_hint_8">Кнопка відкриє налаштування Dio Alert. Відкрийте «Батарея» → «Оптимізація батареї», вгорі перемкніть список на «Усі застосунки», знайдіть Dio Alert і виберіть «Не оптимізувати».</string>
     <string name="battery_hint_samsung">Кнопка відкриє налаштування Dio Alert. Відкрийте «Батарея» і виберіть «Без обмежень».</string>
     <string name="battery_hint_xiaomi">Кнопка відкриє налаштування Dio Alert. Відкрийте «Економія енергії» і виберіть «Без обмежень», а також увімкніть «Автозапуск».</string>
-    <string name="setup_guide">Детальна інструкція з налаштування</string>
     <string name="notification_settings">Налаштування сповіщень</string>
 
     <string name="request_failed">Помилка запиту: %1$s</string>
