@@ -44,6 +44,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var disconnectButton: MaterialButton
     private lateinit var signInGroup: View
     private lateinit var signInButton: MaterialButton
+    private lateinit var modeButton: MaterialButton
+    private lateinit var forgotButton: MaterialButton
+    private lateinit var registerFields: View
+    private lateinit var registerHint: View
+    private lateinit var firstNameInput: TextInputEditText
+    private lateinit var lastNameInput: TextInputEditText
+    private lateinit var phoneInput: TextInputEditText
+    private lateinit var emailInput: TextInputEditText
+    private lateinit var passwordInput: TextInputEditText
+    /** The form shows registration instead of sign-in. */
+    private var isRegistering = false
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
     private lateinit var batteryHint: TextView
@@ -68,6 +79,15 @@ class MainActivity : AppCompatActivity() {
         disconnectButton = findViewById(R.id.disconnectButton)
         signInGroup = findViewById(R.id.signInGroup)
         signInButton = findViewById(R.id.signInButton)
+        modeButton = findViewById(R.id.modeButton)
+        forgotButton = findViewById(R.id.forgotButton)
+        registerFields = findViewById(R.id.registerFields)
+        registerHint = findViewById(R.id.registerHint)
+        firstNameInput = findViewById(R.id.firstNameInput)
+        lastNameInput = findViewById(R.id.lastNameInput)
+        phoneInput = findViewById(R.id.phoneInput)
+        emailInput = findViewById(R.id.emailInput)
+        passwordInput = findViewById(R.id.passwordInput)
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
         batteryHint = findViewById(R.id.batteryHint)
@@ -79,8 +99,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         regionButton.setOnClickListener { pickRegion() }
-        signInButton.setOnClickListener { MindAuth.startSignIn(this) }
-        findViewById<MaterialButton>(R.id.registerButton).setOnClickListener { MindAuth.openRegistration(this) }
+        signInButton.setOnClickListener { if (isRegistering) register() else signIn() }
+        modeButton.setOnClickListener { setRegistering(!isRegistering) }
+        forgotButton.setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.MIND_URL + "forgot-password"))) }
         findViewById<MaterialButton>(R.id.useKeyButton).setOnClickListener {
             keyGroup.visibility = if (keyGroup.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
@@ -97,43 +118,6 @@ class MainActivity : AppCompatActivity() {
         if (prefs.isConnected && !hasNotificationPermission()) {
             requestNotifications()
         }
-        handleSignInRedirect(intent)
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        handleSignInRedirect(intent)
-    }
-
-    /** The login page came back with an authorization code: finish signing in. */
-    private fun handleSignInRedirect(intent: Intent?) {
-        val redirect = intent?.data
-        if (!MindAuth.isRedirect(redirect) || redirect == null) {
-            return
-        }
-        // Handled once, even if the activity is recreated with the same intent.
-        intent?.data = null
-
-        signInButton.isEnabled = false
-        lifecycleScope.launch {
-            try {
-                val (key, email) = withContext(Dispatchers.IO) { MindAuth.completeSignIn(this@MainActivity, redirect) }
-                val token = FirebaseMessaging.getInstance().token.await()
-                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid) }
-                prefs.deviceKey = key
-                prefs.registeredToken = token
-                prefs.userEmail = email
-                prefs.keyCreatedByApp = true
-                toast(R.string.connected)
-                if (!hasNotificationPermission()) requestNotifications()
-            } catch (e: Exception) {
-                toast(getString(R.string.sign_in_failed, e.message ?: e.javaClass.simpleName))
-            } finally {
-                signInButton.isEnabled = true
-                updateConnection()
-            }
-        }
     }
 
     override fun onResume() {
@@ -143,6 +127,98 @@ class MainActivity : AppCompatActivity() {
         updateSetupButtons()
         loadStatus()
         refreshRegistration()
+    }
+
+    private fun setRegistering(registering: Boolean) {
+        isRegistering = registering
+        registerFields.visibility = if (registering) View.VISIBLE else View.GONE
+        registerHint.visibility = if (registering) View.VISIBLE else View.GONE
+        forgotButton.visibility = if (registering) View.GONE else View.VISIBLE
+        signInButton.setText(if (registering) R.string.register_submit else R.string.sign_in)
+        modeButton.setText(if (registering) R.string.have_account else R.string.register)
+    }
+
+    private fun text(input: TextInputEditText) = input.text?.toString()?.trim().orEmpty()
+
+    /** Marks empty fields; true when all are filled. */
+    private fun requireFilled(vararg inputs: TextInputEditText): Boolean {
+        var ok = true
+        inputs.forEach { input ->
+            if (text(input).isEmpty()) {
+                input.error = getString(R.string.field_required)
+                ok = false
+            }
+        }
+        return ok
+    }
+
+    /** Email + password (and an invisible reCAPTCHA) → a device key for this phone, made by the server. */
+    private fun signIn() {
+        if (!requireFilled(emailInput, passwordInput)) return
+        val email = text(emailInput)
+        val password = passwordInput.text?.toString().orEmpty()
+
+        signInButton.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val captcha = AppCaptcha.loginToken(application)
+                val (key, signedInAs) = withContext(Dispatchers.IO) {
+                    ApiClient.appSignIn(email, password, captcha, "Dio Alert · ${Prefs.deviceName}")
+                }
+                val token = FirebaseMessaging.getInstance().token.await()
+                withContext(Dispatchers.IO) { ApiClient.registerDevice(key, token, Prefs.deviceName, prefs.region.uid) }
+                prefs.deviceKey = key
+                prefs.registeredToken = token
+                prefs.userEmail = signedInAs
+                prefs.keyCreatedByApp = true
+                passwordInput.setText("")
+                toast(R.string.connected)
+                if (!hasNotificationPermission()) requestNotifications()
+            } catch (e: Exception) {
+                toast(getString(R.string.sign_in_failed, errorText(e)))
+            } finally {
+                signInButton.isEnabled = true
+                updateConnection()
+            }
+        }
+    }
+
+    private fun register() {
+        if (!requireFilled(firstNameInput, lastNameInput, phoneInput, emailInput, passwordInput)) return
+        val password = passwordInput.text?.toString().orEmpty()
+        if (password.length < 8) {
+            passwordInput.error = getString(R.string.password_too_short)
+            return
+        }
+
+        signInButton.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val captcha = AppCaptcha.signupToken(application)
+                withContext(Dispatchers.IO) {
+                    ApiClient.appRegister(text(firstNameInput), text(lastNameInput), text(emailInput), text(phoneInput), password, captcha)
+                }
+                passwordInput.setText("")
+                setRegistering(false)
+                MaterialAlertDialogBuilder(this@MainActivity)
+                    .setTitle(R.string.registered_title)
+                    .setMessage(R.string.registered_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            } catch (e: Exception) {
+                toast(getString(R.string.register_failed, errorText(e)))
+            } finally {
+                signInButton.isEnabled = true
+            }
+        }
+    }
+
+    /** The server's message where there is one; plain words for the usual failures. */
+    private fun errorText(e: Exception): String = when (e) {
+        is AppCaptcha.NotConfiguredException -> getString(R.string.captcha_not_configured)
+        is ApiClient.ApiException -> e.message ?: "HTTP ${e.code}"
+        is java.io.IOException -> getString(R.string.no_connection)
+        else -> e.message ?: e.javaClass.simpleName
     }
 
     private fun connect() {

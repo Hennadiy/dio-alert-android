@@ -40,19 +40,7 @@ class Prefs(context: Context) {
     val isConnected: Boolean
         get() = !deviceKey.isNullOrEmpty()
 
-    /** The PKCE verifier and state of a sign-in in progress (survive the activity being recreated). */
-    fun setPendingSignIn(verifier: String, state: String) {
-        prefs.edit().putString(KEY_PENDING_VERIFIER, verifier).putString(KEY_PENDING_STATE, state).apply()
-    }
-
-    fun takePendingSignIn(): Pair<String, String>? {
-        val verifier = prefs.getString(KEY_PENDING_VERIFIER, null) ?: return null
-        val state = prefs.getString(KEY_PENDING_STATE, null) ?: return null
-        prefs.edit().remove(KEY_PENDING_VERIFIER).remove(KEY_PENDING_STATE).apply()
-        return verifier to state
-    }
-
-    /** Forgets the connection (not the pending sign-in). */
+    /** Forgets the connection. */
     fun clearConnection() {
         prefs.edit()
             .remove(KEY_DEVICE_KEY)
@@ -69,8 +57,6 @@ class Prefs(context: Context) {
         private const val KEY_CREATED_BY_APP = "key_created_by_app"
         private const val KEY_REGION = "region"
         private const val KEY_REGIONS = "regions"
-        private const val KEY_PENDING_VERIFIER = "pending_verifier"
-        private const val KEY_PENDING_STATE = "pending_state"
 
         /** Shown in Mind's list of connected phones. */
         val deviceName: String

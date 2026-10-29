@@ -27,13 +27,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Mind's login page sends the sign-in result here (MindAuth.REDIRECT_URI). -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.dio.alert" />
-            </intent-filter>
         </activity>
 
         <!-- Used by FCM if a message ever names no channel or an unknown one. -->

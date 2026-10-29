@@ -18,6 +18,9 @@ android {
         versionCode = (System.getenv("VERSION_CODE") ?: "1").toInt()
         versionName = System.getenv("VERSION_NAME") ?: "1.0"
         buildConfigField("String", "API_BASE_URL", "\"https://mind-api.dio-quiz.com.ua/api/\"")
+        buildConfigField("String", "MIND_URL", "\"https://mind.dio-quiz.com.ua/\"")
+        // reCAPTCHA Enterprise key (Android, package com.dio.alert): not secret; CI passes the repo variable.
+        buildConfigField("String", "RECAPTCHA_SITE_KEY", "\"${System.getenv("RECAPTCHA_SITE_KEY") ?: ""}\"")
     }
 
     buildFeatures {
@@ -67,5 +70,5 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
-    implementation("androidx.browser:browser:1.8.0")
+    implementation("com.google.android.recaptcha:recaptcha:18.9.3")
 }

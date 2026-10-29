@@ -5,7 +5,6 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 
 data class AlertStatus(
     val isConfigured: Boolean,
@@ -19,9 +18,6 @@ data class AlertStatus(
 /** Mind's API. Blocking: call it off the main thread. */
 object ApiClient {
     class ApiException(val code: Int, message: String) : IOException(message)
-
-    private val serverRoot: String
-        get() = BuildConfig.API_BASE_URL.removeSuffix("api/")
 
     fun getStatus(regionUid: Int): AlertStatus {
         val json = JSONObject(request("GET", BuildConfig.API_BASE_URL + "AirAlert/GetStatus?regionUid=$regionUid"))
@@ -48,29 +44,36 @@ object ApiClient {
         postJson("AirAlert/UnregisterDevice", deviceKey, JSONObject().put("fcmToken", fcmToken ?: "").put("revokeKey", revokeKey))
     }
 
-    /** OAuth authorization code → access token (the refresh token isn't needed: the token is used once). */
-    fun exchangeCode(code: String, verifier: String, redirectUri: String, clientId: String): String {
-        val form = mapOf(
-            "grant_type" to "authorization_code",
-            "code" to code,
-            "redirect_uri" to redirectUri,
-            "client_id" to clientId,
-            "code_verifier" to verifier
-        ).entries.joinToString("&") { (k, v) -> "$k=${URLEncoder.encode(v, "UTF-8")}" }
-
-        val body = request("POST", serverRoot + "oauth/token", body = form, contentType = "application/x-www-form-urlencoded")
-        return JSONObject(body).getString("access_token")
-    }
-
-    /** Creates a device key for the signed-in user and returns the plain key (shown only once). */
-    fun createDeviceKey(accessToken: String, name: String): String {
+    /** Signs in with email and password; the server creates a device key for this phone. Returns (key, email). */
+    fun appSignIn(email: String, password: String, recaptchaToken: String, deviceName: String): Pair<String, String> {
         val body = request(
-            "POST", BuildConfig.API_BASE_URL + "DeviceKey/Create",
-            headers = mapOf("Authorization" to "Bearer $accessToken"),
-            body = JSONObject().put("name", name).toString(),
+            "POST", BuildConfig.API_BASE_URL + "User/AppSignIn",
+            body = JSONObject()
+                .put("email", email)
+                .put("password", password)
+                .put("recaptchaToken", recaptchaToken)
+                .put("deviceName", deviceName)
+                .toString(),
             contentType = "application/json; charset=utf-8"
         )
-        return JSONObject(body).getString("key")
+        val json = JSONObject(body)
+        return json.getString("key") to json.optString("email", email)
+    }
+
+    /** Creates a Mind account; it can sign in once an admin approves it. */
+    fun appRegister(firstName: String, lastName: String, email: String, phone: String, password: String, recaptchaToken: String) {
+        request(
+            "POST", BuildConfig.API_BASE_URL + "User/AppRegister",
+            body = JSONObject()
+                .put("firstName", firstName)
+                .put("lastName", lastName)
+                .put("email", email)
+                .put("phoneNumber", phone)
+                .put("password", password)
+                .put("captchaToken", recaptchaToken)
+                .toString(),
+            contentType = "application/json; charset=utf-8"
+        )
     }
 
     private fun postJson(path: String, deviceKey: String, body: JSONObject) {

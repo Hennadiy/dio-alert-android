@@ -75,6 +75,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           VERSION_CODE: ${{ github.run_number }}
           VERSION_NAME: ${{ steps.version.outputs.name }}
+          RECAPTCHA_SITE_KEY: ${{ vars.RECAPTCHA_SITE_KEY }}
         run: |
           gradle bundleRelease --no-daemon
           mv app/build/outputs/bundle/release/app-release.aab dio-alert.aab

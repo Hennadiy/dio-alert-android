@@ -54,10 +54,10 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 ## App content answers (Policy → App content)
 
 - **Ads:** No.
-- **App access:** Sign-in required. Give the reviewers a Mind test account (email + password) that an admin has approved. Note the login page has a reCAPTCHA checkbox.
+- **App access:** Sign-in required, in the app's own form (email + password; reCAPTCHA is invisible). Give the reviewers a Mind test account that an admin has approved.
 - **Target audience:** 18+.
 - **Data safety:**
-  - Collected: *Email address* and *Name* (account management, app functionality; not shared), *Device or other IDs* (the push token; app functionality; not shared), *Approximate location* (the region the user picks, not from GPS; app functionality; not shared).
+  - Collected: *Email address*, *Name*, *Phone number* (account management, app functionality; not shared), *Device or other IDs* (the push token, and device signals for reCAPTCHA; app functionality, fraud prevention/security; not shared), *Approximate location* (the region the user picks, not from GPS; app functionality; not shared).
   - Data is encrypted in transit: Yes. Users can request deletion: Yes (sign out deletes the phone's data; account deletion by email).
 - **Content rating:** questionnaire → no violence/sexual content/gambling etc.; category Utility.
 - **Government apps:** No. **Financial features:** none. **Health:** No. **News app:** No.
