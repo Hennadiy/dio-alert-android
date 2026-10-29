@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var prefs: Prefs
 
+    private lateinit var regionCard: View
+    private lateinit var setupCard: View
     private lateinit var regionButton: MaterialButton
     private lateinit var statusText: TextView
     private lateinit var connectionText: TextView
@@ -41,7 +43,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var signInButton: MaterialButton
     private lateinit var notificationsButton: MaterialButton
     private lateinit var batteryButton: MaterialButton
-    private lateinit var serverTestButton: MaterialButton
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         updateSetupButtons()
@@ -52,6 +53,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         prefs = Prefs(this)
 
+        regionCard = findViewById(R.id.regionCard)
+        setupCard = findViewById(R.id.setupCard)
         regionButton = findViewById(R.id.regionButton)
         statusText = findViewById(R.id.statusText)
         connectionText = findViewById(R.id.connectionText)
@@ -63,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         signInButton = findViewById(R.id.signInButton)
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
-        serverTestButton = findViewById(R.id.serverTestButton)
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
 
         regionButton.setOnClickListener { pickRegion() }
@@ -78,14 +80,8 @@ class MainActivity : AppCompatActivity() {
         batteryButton.setOnClickListener { requestBatteryExemption() }
         findViewById<MaterialButton>(R.id.channelSettingsButton).setOnClickListener { openNotificationSettings() }
 
-        // Local tests: exactly the notification a real alert produces, without the network.
-        findViewById<MaterialButton>(R.id.testDronesButton).setOnClickListener { AlertNotifier.show(this, "drones", prefs.region, null, true) }
-        findViewById<MaterialButton>(R.id.testMissilesButton).setOnClickListener { AlertNotifier.show(this, "missiles", prefs.region, null, true) }
-        findViewById<MaterialButton>(R.id.testEndButton).setOnClickListener { AlertNotifier.show(this, "end", prefs.region, 42, true) }
-        serverTestButton.setOnClickListener { serverTest() }
-
-        // Android 13+ shows nothing until the user allows notifications; ask right away.
-        if (!hasNotificationPermission()) {
+        // Android 13+ shows nothing until the user allows notifications; ask as soon as alerts can arrive.
+        if (prefs.isConnected && !hasNotificationPermission()) {
             requestNotifications()
         }
         handleSignInRedirect(intent)
@@ -117,6 +113,7 @@ class MainActivity : AppCompatActivity() {
                 prefs.userEmail = email
                 prefs.keyCreatedByApp = true
                 toast(R.string.connected)
+                if (!hasNotificationPermission()) requestNotifications()
             } catch (e: Exception) {
                 toast(getString(R.string.sign_in_failed, e.message ?: e.javaClass.simpleName))
             } finally {
@@ -153,6 +150,7 @@ class MainActivity : AppCompatActivity() {
                 prefs.keyCreatedByApp = false
                 keyInput.setText("")
                 toast(R.string.connected)
+                if (!hasNotificationPermission()) requestNotifications()
             } catch (e: Exception) {
                 toast(getString(R.string.connect_failed, e.message ?: e.javaClass.simpleName))
             } finally {
@@ -193,21 +191,6 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 // Offline: try again next time.
-            }
-        }
-    }
-
-    private fun serverTest() {
-        val key = prefs.deviceKey ?: return
-        serverTestButton.isEnabled = false
-        lifecycleScope.launch {
-            try {
-                withContext(Dispatchers.IO) { ApiClient.testDevice(key, "missiles") }
-                toast(R.string.server_test_sent)
-            } catch (e: Exception) {
-                toast(getString(R.string.request_failed, e.message ?: e.javaClass.simpleName))
-            } finally {
-                serverTestButton.isEnabled = true
             }
         }
     }
@@ -318,7 +301,9 @@ class MainActivity : AppCompatActivity() {
         signInGroup.visibility = if (connected) View.GONE else View.VISIBLE
         if (connected) keyGroup.visibility = View.GONE
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
-        serverTestButton.isEnabled = connected
+        // Signed out, the phone gets no alerts: only signing in is offered.
+        regionCard.visibility = if (connected) View.VISIBLE else View.GONE
+        setupCard.visibility = if (connected) View.VISIBLE else View.GONE
     }
 
     private fun updateSetupButtons() {

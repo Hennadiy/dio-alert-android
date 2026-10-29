@@ -53,13 +53,6 @@
     <string name="battery_exemption">Вимкнути оптимізацію батареї</string>
     <string name="notification_settings">Налаштування сповіщень</string>
 
-    <string name="test_title">Перевірка</string>
-    <string name="test_hint">Кнопки показують кожну тривогу на цьому телефоні з її вібрацією та звуком. «Перевірка через сервер» надсилає ракетну тривогу з Mind так само, як приходить справжня.</string>
-    <string name="test_drones">Дрони</string>
-    <string name="test_missiles">Ракети</string>
-    <string name="test_end">Відбій</string>
-    <string name="server_test">Перевірка через сервер</string>
-    <string name="server_test_sent">Надіслано. Тривога має прийти за кілька секунд.</string>
     <string name="request_failed">Помилка запиту: %1$s</string>
     <string name="version_label">Версія %1$s</string>
 </resources>

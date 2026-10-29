@@ -56,13 +56,6 @@
     <string name="battery_exemption">Turn off battery optimisation</string>
     <string name="notification_settings">Notification settings</string>
 
-    <string name="test_title">Test</string>
-    <string name="test_hint">The buttons show each alert on this phone with its vibration and sound. “Test via server” sends a missile alert from Mind, the same way a real one arrives.</string>
-    <string name="test_drones">Drones</string>
-    <string name="test_missiles">Missiles</string>
-    <string name="test_end">All clear</string>
-    <string name="server_test">Test via server</string>
-    <string name="server_test_sent">Sent. The alert should arrive in a few seconds.</string>
     <string name="request_failed">Request failed: %1$s</string>
     <string name="version_label">Version %1$s</string>
 </resources>

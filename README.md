@@ -38,7 +38,7 @@ Release: every push to `main` builds the AAB and, once Play is connected, upload
 
 ## Install on the phone
 
-Install **Dio Alert** from Google Play (during internal testing: accept the tester invitation link first), open it, allow notifications, set battery optimisation to "Not optimised" (the app opens the list) and tap **Sign in with Mind**. Use the test buttons to hear and feel each kind.
+Install **Dio Alert** from Google Play (during internal testing: accept the tester invitation link first), open it and tap **Sign in with Mind** (until then the app shows only the sign-in card). Then allow notifications, set battery optimisation to "Not optimised" (the app opens the list) and pick the region. To hear and feel each kind, an admin sends test alerts from the user's page in Mind (or use the test buttons on your own Mind profile).
 
 ## Google Play
 

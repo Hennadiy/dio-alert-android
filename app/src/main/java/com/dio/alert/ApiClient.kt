@@ -48,11 +48,6 @@ object ApiClient {
         postJson("AirAlert/UnregisterDevice", deviceKey, JSONObject().put("fcmToken", fcmToken ?: "").put("revokeKey", revokeKey))
     }
 
-    /** Asks the server to send a test alert to this user's phones, through FCM like a real one. */
-    fun testDevice(deviceKey: String, kind: String) {
-        postJson("AirAlert/TestDevice", deviceKey, JSONObject().put("kind", kind))
-    }
-
     /** OAuth authorization code → access token (the refresh token isn't needed: the token is used once). */
     fun exchangeCode(code: String, verifier: String, redirectUri: String, clientId: String): String {
         val form = mapOf(

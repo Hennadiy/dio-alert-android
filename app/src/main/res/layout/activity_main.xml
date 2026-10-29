@@ -26,8 +26,9 @@
             android:text="@string/app_tagline"
             android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-        <!-- The region and its current state -->
+        <!-- The region and its current state (signed in only) -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/regionCard"
             style="@style/Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -162,8 +163,9 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Phone setup -->
+        <!-- Phone setup (signed in only) -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/setupCard"
             style="@style/Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -204,59 +206,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Tests -->
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout style="@style/CardBody">
-
-                <TextView
-                    style="@style/SectionTitle"
-                    android:text="@string/test_title" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/test_hint"
-                    android:textAppearance="?attr/textAppearanceBodySmall" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/testDronesButton"
-                        style="@style/TestButton"
-                        android:layout_marginEnd="4dp"
-                        android:text="@string/test_drones" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/testMissilesButton"
-                        style="@style/TestButton"
-                        android:layout_marginHorizontal="4dp"
-                        android:text="@string/test_missiles" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/testEndButton"
-                        style="@style/TestButton"
-                        android:layout_marginStart="4dp"
-                        android:text="@string/test_end" />
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/serverTestButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/server_test"
-                    app:icon="@drawable/ic_stat_alert" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/versionText"
