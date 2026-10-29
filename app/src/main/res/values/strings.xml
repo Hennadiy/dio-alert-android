@@ -51,7 +51,7 @@
     <string name="key_revoked">The key was revoked in Mind. Create a new one to connect again.</string>
 
     <string name="setup_title">Phone setup</string>
-    <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, in the battery optimisation list, set Dio Alert to “Not optimised”.</string>
+    <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, set Battery to “Unrestricted” on the Dio Alert settings page that the button opens.</string>
     <string name="allow_notifications">Allow notifications</string>
     <string name="battery_exemption">Turn off battery optimisation</string>
     <string name="notification_settings">Notification settings</string>

@@ -330,10 +330,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     // An alert app is exactly the case this exemption exists for: a delayed alert is useless.
-    // Google Play restricts the direct one-tap exemption request, so this opens the battery
-    // optimisation list, where the user picks Dio Alert.
+    // Google Play restricts the direct one-tap exemption request, and the optimisation list
+    // opens filtered to apps already exempt, so this opens Dio Alert's own settings page,
+    // where Battery → Unrestricted is on every maker's Android.
     private fun requestBatteryExemption() {
-        startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
     }
 
     private fun openNotificationSettings() {
