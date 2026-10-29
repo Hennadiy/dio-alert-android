@@ -53,6 +53,11 @@ class Prefs(context: Context) {
 
         /** Shown in Mind's list of connected phones. */
         val deviceName: String
-            get() = "${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}"
+            get() {
+                // Some makers repeat themselves in the model ("motorola edge 70 fusion").
+                val model = if (Build.MODEL.startsWith(Build.MANUFACTURER, ignoreCase = true)) Build.MODEL
+                else "${Build.MANUFACTURER} ${Build.MODEL}"
+                return model.replaceFirstChar { it.uppercase() }
+            }
     }
 }
