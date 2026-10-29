@@ -196,14 +196,6 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/battery_exemption" />
 
-                <TextView
-                    android:id="@+id/batteryHint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/battery_hint"
-                    android:textAppearance="?attr/textAppearanceBodySmall" />
-
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/channelSettingsButton"
                     style="@style/Widget.Material3.Button.OutlinedButton"
