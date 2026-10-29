@@ -207,11 +207,24 @@
         </com.google.android.material.card.MaterialCardView>
 
 
+        <!-- Where the alerts come from; opens the site. -->
+        <TextView
+            android:id="@+id/sourceText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/source_note"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorPrimary" />
+
         <TextView
             android:id="@+id/versionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="4dp"
             android:gravity="center"
             android:textAppearance="?attr/textAppearanceBodySmall" />
     </LinearLayout>

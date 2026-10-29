@@ -54,5 +54,6 @@
     <string name="notification_settings">Налаштування сповіщень</string>
 
     <string name="request_failed">Помилка запиту: %1$s</string>
+    <string name="source_note">Дані про тривоги надає alerts.in.ua</string>
     <string name="version_label">Версія %1$s</string>
 </resources>

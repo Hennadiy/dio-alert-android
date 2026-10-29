@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- The whole Material palette is set, light here and dark in values-night: leaving
+         parts to Material's baseline gave dark text on the purple buttons in dark mode. -->
     <color name="accent">#6D4AFF</color>
-    <color name="danger">#D93025</color>
-    <color name="calm">#1E8E3E</color>
+    <color name="on_accent">#FFFFFF</color>
+    <color name="accent_container">#E8E0FF</color>
+    <color name="on_accent_container">#22005D</color>
+    <color name="danger">#C5221F</color>
+    <color name="calm">#137333</color>
     <color name="launcher_background">#D93025</color>
 </resources>

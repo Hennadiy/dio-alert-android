@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode: light accent with dark text on it, lighter status colors for dark cards. -->
+    <color name="accent">#CBBEFF</color>
+    <color name="on_accent">#21005E</color>
+    <color name="accent_container">#4F2FD6</color>
+    <color name="on_accent_container">#F2EDFF</color>
+    <color name="danger">#F28B82</color>
+    <color name="calm">#81C995</color>
+</resources>

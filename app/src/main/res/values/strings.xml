@@ -57,5 +57,6 @@
     <string name="notification_settings">Notification settings</string>
 
     <string name="request_failed">Request failed: %1$s</string>
+    <string name="source_note">Alert data comes from alerts.in.ua</string>
     <string name="version_label">Version %1$s</string>
 </resources>

@@ -3,6 +3,7 @@ package com.dio.alert
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -67,6 +68,9 @@ class MainActivity : AppCompatActivity() {
         notificationsButton = findViewById(R.id.notificationsButton)
         batteryButton = findViewById(R.id.batteryButton)
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
+        findViewById<TextView>(R.id.sourceText).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ALERTS_SOURCE_URL)))
+        }
 
         regionButton.setOnClickListener { pickRegion() }
         signInButton.setOnClickListener { MindAuth.startSignIn(this) }
@@ -334,6 +338,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toast(resId: Int) = toast(getString(resId))
+
+    private companion object {
+        const val ALERTS_SOURCE_URL = "https://alerts.in.ua/"
+    }
 
     private fun toast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show()
