@@ -20,9 +20,9 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 - The reCAPTCHA key (type Android, package `com.dio.alert`, not secret) comes from the repo **variable** `RECAPTCHA_SITE_KEY` at build time (`BuildConfig.RECAPTCHA_SITE_KEY`); a build without it says sign-in isn't set up. The server needs the same key, the Cloud project id and an API key (see the service's CLAUDE.md).
 - The app calls `api/AirAlert/RegisterDevice` with its FCM token on sign-in and on every start (token rotation, "last seen"). Disconnecting the phone in Mind revokes its key and signs the app out.
 
-## Phone setup help
+## Phone setup checks
 
-Above the battery button the app says what to pick on the settings page it opens, for the phone it runs on (`batteryHintRes()`: Android 14+, 12–13, 8–11, Samsung, Xiaomi). Mind's guide (`/guides?tab=dioAlert`) has the same per phone, plus a no-sound checklist.
+While signed in, the app checks everything on the phone that can stop an alert (`MainActivity.setupIssues()`): the notification permission and app switch, each alert kind's channel, battery optimisation, restricted background use, Data Saver, alarm volume and Do Not Disturb silencing alarms. The **Check your phone** card lists only what needs fixing, each with a button that fixes it or opens the right settings, and hides when nothing does; it re-checks on every return to the app. For battery it says what to pick for the phone it runs on (`batteryHintRes()`: Android 14+, 12–13, 8–11, Samsung, Xiaomi). The bell and gear next to the title open the app's notification settings and app settings.
 
 ## Languages
 

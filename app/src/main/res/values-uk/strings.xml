@@ -56,8 +56,18 @@
     <string name="connected">Підключено</string>
     <string name="key_revoked">Вас від’єднано в Mind. Увійдіть знову, щоб отримувати тривоги.</string>
 
-    <string name="setup_title">Налаштування телефона</string>
-    <string name="setup_hint">Тривоги звучать на гучності будильника, навіть у беззвучному режимі. Щоб їх ніщо не затримувало, дозвольте сповіщення, а на сторінці налаштувань Dio Alert, яку відкриє кнопка, виберіть Батарея → «Без обмежень».</string>
+    <string name="setup_title">Перевірте телефон</string>
+    <string name="setup_hint">Ці налаштування можуть завадити тривогам прийти вчасно чи прозвучати. Картка зникне, щойно їх виправите.</string>
+    <string name="issue_notifications">Сповіщення для Dio Alert вимкнено: тривоги не з’являтимуться.</string>
+    <string name="issue_channels">Ці типи тривог вимкнено: %1$s.</string>
+    <string name="issue_background">Для Dio Alert обмежено роботу у фоні, тому тривоги можуть не приходити. Дозвольте фонову роботу в налаштуваннях батареї застосунку.</string>
+    <string name="issue_data_saver">Економія трафіку блокує Dio Alert у фоні, тому тривоги можуть не приходити. Дозвольте йому необмежені дані.</string>
+    <string name="issue_alarm_volume">Гучність будильника вимкнено: тривоги звучать на гучності будильника, тож будуть беззвучні.</string>
+    <string name="issue_dnd">Режим «Не турбувати» зараз глушить будильники, тож тривог не буде чути.</string>
+    <string name="app_settings">Налаштування застосунку</string>
+    <string name="allow_data">Дозволити фонові дані</string>
+    <string name="turn_up_alarm_volume">Збільшити гучність будильника</string>
+    <string name="dnd_settings">Налаштування «Не турбувати»</string>
     <string name="allow_notifications">Дозволити сповіщення</string>
     <string name="battery_exemption">Вимкнути оптимізацію батареї</string>
     <string name="battery_hint_14">Кнопка відкриє налаштування Dio Alert. Відкрийте «Використання батареї застосунком», натисніть на текст «Дозволити використання у фоновому режимі» (не на перемикач) і виберіть «Без обмежень».</string>

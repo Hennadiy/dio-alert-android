@@ -12,12 +12,38 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/app_name"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/notificationSettingsButton"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/notification_settings"
+                android:tooltipText="@string/notification_settings"
+                app:icon="@drawable/ic_notifications" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/appSettingsButton"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/app_settings"
+                android:tooltipText="@string/app_settings"
+                app:icon="@drawable/ic_settings" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
@@ -225,12 +251,13 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Phone setup (signed in only) -->
+        <!-- What on this phone can stop alerts; shown only while something does (signed in only). -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/setupCard"
             style="@style/Card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <LinearLayout style="@style/CardBody">
 
@@ -244,35 +271,11 @@
                     android:text="@string/setup_hint"
                     android:textAppearance="?attr/textAppearanceBodySmall" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/notificationsButton"
+                <LinearLayout
+                    android:id="@+id/issuesList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/allow_notifications" />
-
-                <!-- What to pick on the page the battery button opens, for this phone. -->
-                <TextView
-                    android:id="@+id/batteryHint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:textAppearance="?attr/textAppearanceBodySmall" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/batteryButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/battery_exemption" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/channelSettingsButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/notification_settings" />
+                    android:orientation="vertical" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

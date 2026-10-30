@@ -50,6 +50,14 @@ object AlertNotifier {
         "alert_drones_v2", "alert_missiles_v2", "alert_end_v2"
     )
 
+    /** Names of the alert kinds whose channel the user switched off (their alerts don't show or vibrate). */
+    fun blockedChannelNames(context: Context): List<String> {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        return Channel.entries
+            .filter { manager.getNotificationChannel(it.id)?.importance == NotificationManager.IMPORTANCE_NONE }
+            .map { context.getString(it.nameRes) }
+    }
+
     /** An alert of unknown type uses the missile channel: assume the worst. */
     private fun channelFor(kind: String): Channel = when (kind) {
         "drones" -> Channel.DRONES

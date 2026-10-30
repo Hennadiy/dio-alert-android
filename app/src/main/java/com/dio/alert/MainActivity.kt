@@ -1,21 +1,27 @@
 package com.dio.alert
 
 import android.Manifest
+import android.app.ActivityManager
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioManager
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -52,12 +58,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var passwordInput: TextInputEditText
     /** The form shows registration instead of sign-in. */
     private var isRegistering = false
-    private lateinit var notificationsButton: MaterialButton
-    private lateinit var batteryButton: MaterialButton
-    private lateinit var batteryHint: TextView
+    private lateinit var issuesList: LinearLayout
+    /** Asked for notifications once while this screen is open: a second refusal means "go to settings". */
+    private var askedForNotifications = false
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        updateSetupButtons()
+        updateSetup()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,10 +88,9 @@ class MainActivity : AppCompatActivity() {
         phoneInput = findViewById(R.id.phoneInput)
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
-        notificationsButton = findViewById(R.id.notificationsButton)
-        batteryButton = findViewById(R.id.batteryButton)
-        batteryHint = findViewById(R.id.batteryHint)
-        batteryHint.setText(batteryHintRes())
+        issuesList = findViewById(R.id.issuesList)
+        findViewById<MaterialButton>(R.id.appSettingsButton).setOnClickListener { openAppSettings() }
+        findViewById<MaterialButton>(R.id.notificationSettingsButton).setOnClickListener { openNotificationSettings() }
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
         findViewById<MaterialButton>(R.id.languageButton).setOnClickListener { pickLanguage() }
         findViewById<TextView>(R.id.sourceText).setOnClickListener {
@@ -97,9 +102,6 @@ class MainActivity : AppCompatActivity() {
         modeButton.setOnClickListener { setRegistering(!isRegistering) }
         forgotButton.setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.MIND_URL + "forgot-password"))) }
         disconnectButton.setOnClickListener { disconnect() }
-        notificationsButton.setOnClickListener { requestNotifications() }
-        batteryButton.setOnClickListener { requestBatteryExemption() }
-        findViewById<MaterialButton>(R.id.channelSettingsButton).setOnClickListener { openNotificationSettings() }
 
         // Android 13+ shows nothing until the user allows notifications; ask as soon as alerts can arrive.
         if (prefs.isConnected && !hasNotificationPermission()) {
@@ -110,8 +112,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateRegion()
-        updateConnection()
-        updateSetupButtons()
+        updateConnection() // also refreshes the setup checks
         loadStatus()
         refreshRegistration()
     }
@@ -348,15 +349,99 @@ class MainActivity : AppCompatActivity() {
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
         // Signed out, the phone gets no alerts: only signing in is offered.
         regionCard.visibility = if (connected) View.VISIBLE else View.GONE
-        setupCard.visibility = if (connected) View.VISIBLE else View.GONE
+        updateSetup()
     }
 
-    private fun updateSetupButtons() {
-        notificationsButton.visibility = if (hasNotificationPermission()) View.GONE else View.VISIBLE
+    /** Something on the phone that can stop alerts from arriving or sounding, and how to fix it. */
+    private class SetupIssue(val text: CharSequence, val buttonRes: Int, val fix: () -> Unit)
+
+    /**
+     * Checks everything on the phone that can stop an alert from arriving, showing or sounding,
+     * and lists only what needs fixing; the card hides when nothing does. Runs on every resume,
+     * so coming back from Settings updates it.
+     */
+    private fun updateSetup() {
+        val issues = if (prefs.isConnected) setupIssues() else emptyList()
+        issuesList.removeAllViews()
+        issues.forEach { issue ->
+            val row = layoutInflater.inflate(R.layout.item_setup_issue, issuesList, false)
+            row.findViewById<TextView>(R.id.issueText).text = issue.text
+            row.findViewById<MaterialButton>(R.id.issueButton).apply {
+                setText(issue.buttonRes)
+                setOnClickListener { issue.fix() }
+            }
+            issuesList.addView(row)
+        }
+        setupCard.visibility = if (issues.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    private fun setupIssues(): List<SetupIssue> {
+        val issues = mutableListOf<SetupIssue>()
+
+        // Notifications: the Android 13+ permission, the app-wide switch, and each alert kind's channel.
+        if (!hasNotificationPermission()) {
+            issues += SetupIssue(getString(R.string.issue_notifications), R.string.allow_notifications) {
+                if (askedForNotifications) openNotificationSettings() else requestNotifications()
+            }
+        } else if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            issues += SetupIssue(getString(R.string.issue_notifications), R.string.allow_notifications) { openNotificationSettings() }
+        } else {
+            val blocked = AlertNotifier.blockedChannelNames(this)
+            if (blocked.isNotEmpty()) {
+                issues += SetupIssue(getString(R.string.issue_channels, blocked.joinToString(", ")), R.string.notification_settings) {
+                    openNotificationSettings()
+                }
+            }
+        }
+
+        // Battery optimisation can hold an alert back until the phone wakes up.
         val power = getSystemService(PowerManager::class.java)
-        val batteryVisibility = if (power.isIgnoringBatteryOptimizations(packageName)) View.GONE else View.VISIBLE
-        batteryButton.visibility = batteryVisibility
-        batteryHint.visibility = batteryVisibility
+        if (!power.isIgnoringBatteryOptimizations(packageName)) {
+            issues += SetupIssue(getString(batteryHintRes()), R.string.battery_exemption) { requestBatteryExemption() }
+        }
+
+        // "Restricted" background use (Android 9+) drops the messages that wake the app.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            getSystemService(ActivityManager::class.java).isBackgroundRestricted
+        ) {
+            issues += SetupIssue(getString(R.string.issue_background), R.string.app_settings) { openAppSettings() }
+        }
+
+        // Data Saver cuts the app off the network in the background.
+        val connectivity = getSystemService(ConnectivityManager::class.java)
+        if (connectivity.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            issues += SetupIssue(getString(R.string.issue_data_saver), R.string.allow_data) {
+                startActivity(Intent(Settings.ACTION_IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS, Uri.fromParts("package", packageName, null)))
+            }
+        }
+
+        // The sound plays on the alarm stream: at zero alarm volume alerts are silent.
+        val audio = getSystemService(AudioManager::class.java)
+        if (audio.getStreamVolume(AudioManager.STREAM_ALARM) == 0) {
+            issues += SetupIssue(getString(R.string.issue_alarm_volume), R.string.turn_up_alarm_volume) {
+                val max = audio.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+                audio.setStreamVolume(AudioManager.STREAM_ALARM, maxOf(1, max * 7 / 10), AudioManager.FLAG_SHOW_UI)
+                updateSetup()
+            }
+        }
+
+        // Do Not Disturb lets alarms through unless it is "total silence" or alarms are turned off in it.
+        if (dndBlocksAlarms()) {
+            issues += SetupIssue(getString(R.string.issue_dnd), R.string.dnd_settings) {
+                startActivity(Intent("android.settings.ZEN_MODE_SETTINGS"))
+            }
+        }
+        return issues
+    }
+
+    private fun dndBlocksAlarms(): Boolean {
+        val manager = getSystemService(NotificationManager::class.java)
+        return when (manager.currentInterruptionFilter) {
+            NotificationManager.INTERRUPTION_FILTER_NONE -> true
+            NotificationManager.INTERRUPTION_FILTER_PRIORITY -> Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+                manager.notificationPolicy.priorityCategories and NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS == 0
+            else -> false
+        }
     }
 
     private fun hasNotificationPermission(): Boolean =
@@ -365,14 +450,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestNotifications() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            askedForNotifications = true
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
-    // An alert app is exactly the case this exemption exists for: a delayed alert is useless.
-    // Google Play restricts the direct one-tap exemption request, and the optimisation list
-    // opens filtered to apps already exempt, so this opens Dio Alert's own settings page,
-    // where Battery → Unrestricted is on every maker's Android.
     /** Where "unrestricted" is on this phone's settings page: it moved between Android versions, and Samsung and Xiaomi have their own. */
     private fun batteryHintRes(): Int {
         val maker = Build.MANUFACTURER.lowercase()
@@ -385,7 +467,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestBatteryExemption() {
+    // An alert app is exactly the case this exemption exists for: a delayed alert is useless.
+    // Google Play restricts the direct one-tap exemption request, and the optimisation list
+    // opens filtered to apps already exempt, so this opens Dio Alert's own settings page,
+    // where Battery → Unrestricted is on every maker's Android.
+    private fun requestBatteryExemption() = openAppSettings()
+
+    private fun openAppSettings() {
         startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
     }
 

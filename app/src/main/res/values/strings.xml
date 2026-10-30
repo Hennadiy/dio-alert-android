@@ -59,8 +59,18 @@
     <string name="connected">Connected</string>
     <string name="key_revoked">You were signed out in Mind. Sign in again to get alerts.</string>
 
-    <string name="setup_title">Phone setup</string>
-    <string name="setup_hint">Alerts play at alarm volume, even on silent. So nothing holds them back, allow notifications and, set Battery to “Unrestricted” on the Dio Alert settings page that the button opens.</string>
+    <string name="setup_title">Check your phone</string>
+    <string name="setup_hint">These settings can stop alerts from arriving on time or sounding. This card disappears once they are fixed.</string>
+    <string name="issue_notifications">Notifications are off for Dio Alert: alerts won’t show.</string>
+    <string name="issue_channels">These alert kinds are switched off: %1$s.</string>
+    <string name="issue_background">Background use is restricted for Dio Alert, so alerts may not arrive. Allow background use in the app’s battery settings.</string>
+    <string name="issue_data_saver">Data Saver blocks Dio Alert in the background, so alerts may not arrive. Allow unrestricted data for it.</string>
+    <string name="issue_alarm_volume">Alarm volume is off: alerts play at alarm volume, so they will be silent.</string>
+    <string name="issue_dnd">Do Not Disturb is silencing alarms right now, so alerts won’t be heard.</string>
+    <string name="app_settings">App settings</string>
+    <string name="allow_data">Allow background data</string>
+    <string name="turn_up_alarm_volume">Turn up alarm volume</string>
+    <string name="dnd_settings">Do Not Disturb settings</string>
     <string name="allow_notifications">Allow notifications</string>
     <string name="battery_exemption">Turn off battery optimisation</string>
     <string name="battery_hint_14">The button opens Dio Alert’s settings. Open “App battery usage”, tap the text “Allow background usage” (not the switch) and choose “Unrestricted”.</string>
