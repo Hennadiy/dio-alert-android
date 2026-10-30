@@ -22,7 +22,7 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 
 ## Phone setup checks
 
-While signed in, the app checks everything on the phone that can stop an alert (`MainActivity.setupIssues()`): the notification permission and app switch, each alert kind's channel, battery optimisation, restricted background use, Data Saver, alarm volume and Do Not Disturb silencing alarms. The **Check your phone** card lists only what needs fixing, each with a button that fixes it or opens the right settings, and hides when nothing does; it re-checks on every return to the app. For battery it says what to pick for the phone it runs on (`batteryHintRes()`: Android 14+, 12–13, 8–11, Samsung, Xiaomi). The bell and gear next to the title open the app's notification settings and app settings.
+While signed in, the app checks everything on the phone that can stop an alert (`MainActivity.setupIssues()`): the notification permission and app switch, each alert kind's channel and whether it may override Do Not Disturb (only the user can switch that on; the button opens the channel), battery optimisation, restricted background use, Data Saver, alarm volume and Do Not Disturb silencing alarms. The **Check your phone** card lists only what needs fixing, each with a button that fixes it or opens the right settings, and hides when nothing does; it re-checks on every return to the app. For battery it says what to pick for the phone it runs on (`batteryHintRes()`: Android 14+, 12–13, 8–11, Samsung, Xiaomi). The bell and gear next to the title open the app's notification settings and app settings.
 
 ## Languages
 

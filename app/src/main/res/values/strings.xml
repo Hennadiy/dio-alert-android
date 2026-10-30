@@ -66,6 +66,8 @@
     <string name="issue_background">Background use is restricted for Dio Alert, so alerts may not arrive. Allow background use in the app’s battery settings.</string>
     <string name="issue_data_saver">Data Saver blocks Dio Alert in the background, so alerts may not arrive. Allow unrestricted data for it.</string>
     <string name="issue_alarm_volume">Alarm volume is off: alerts play at alarm volume, so they will be silent.</string>
+    <string name="issue_dnd_override">With Do Not Disturb on, these alerts won’t show or vibrate: %1$s. Turn on “Override Do Not Disturb” for each (the button opens the first).</string>
+    <string name="dnd_override_button">Override Do Not Disturb</string>
     <string name="issue_dnd">Do Not Disturb is silencing alarms right now, so alerts won’t be heard.</string>
     <string name="app_settings">App settings</string>
     <string name="allow_data">Allow background data</string>

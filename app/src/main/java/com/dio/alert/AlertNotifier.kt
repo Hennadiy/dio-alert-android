@@ -58,6 +58,20 @@ object AlertNotifier {
             .map { context.getString(it.nameRes) }
     }
 
+    /**
+     * Alert kinds (channel id to name) still switched on whose channel can't break through Do Not
+     * Disturb. Only the user can turn "Override Do Not Disturb" on, in the channel's settings.
+     */
+    fun channelsNotOverridingDnd(context: Context): List<Pair<String, String>> {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        return Channel.entries
+            .filter { channel ->
+                val created = manager.getNotificationChannel(channel.id)
+                created != null && created.importance != NotificationManager.IMPORTANCE_NONE && !created.canBypassDnd()
+            }
+            .map { it.id to context.getString(it.nameRes) }
+    }
+
     /** An alert of unknown type uses the missile channel: assume the worst. */
     private fun channelFor(kind: String): Channel = when (kind) {
         "drones" -> Channel.DRONES
