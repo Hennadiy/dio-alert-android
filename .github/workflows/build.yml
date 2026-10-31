@@ -1,8 +1,8 @@
 name: Build for Google Play
 
 # Every push builds the Google Play bundle (AAB, version 1.0.<run>, version code = run number)
-# as an artifact. It goes to Play's internal testing track only when asked: run this workflow
-# by hand (Actions → Build for Google Play → Run workflow) with "publish" ticked.
+# as an artifact. It goes to Google Play only when asked: run this workflow by hand (Actions →
+# Build for Google Play → Run workflow) with "publish" ticked and the track chosen.
 # Play installs and updates the app; there are no GitHub releases.
 on:
   push:
@@ -10,9 +10,14 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Upload this build to Google Play internal testing
+        description: Upload this build to Google Play
         type: boolean
         default: false
+      track:
+        description: Play track to upload to
+        type: choice
+        options: [internal, alpha]
+        default: internal
       notes:
         description: Release notes (English, shown to testers)
         type: string
@@ -95,10 +100,12 @@ jobs:
           name: dio-alert
           path: dio-alert.aab
 
-      # Google Play, internal testing track: only on a manual run with "publish" ticked.
-      # Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a service account invited in Play Console
-      # with release rights). The release rolls out to testers at once ("completed"); set the
-      # repo variable PLAY_RELEASE_STATUS to "draft" to review it in Play Console first.
+      # Google Play: only on a manual run with "publish" ticked, to the chosen track (internal
+      # testing, or "alpha" = closed testing). Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a
+      # service account invited in Play Console with release rights). The change is committed
+      # but not sent for review: Play refuses that while other console changes wait for review,
+      # so it is sent from Play Console → Publishing overview → Send changes for review. Set the
+      # repo variable PLAY_RELEASE_STATUS to "draft" to keep the release a draft.
       - name: Check Google Play upload
         if: github.event_name == 'workflow_dispatch' && inputs.publish
         env:
@@ -121,6 +128,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.dio.alert
           releaseFiles: dio-alert.aab
-          tracks: internal
+          tracks: ${{ inputs.track }}
+          changesNotSentForReview: true
           status: ${{ vars.PLAY_RELEASE_STATUS || 'completed' }}
           whatsNewDirectory: whatsnew
