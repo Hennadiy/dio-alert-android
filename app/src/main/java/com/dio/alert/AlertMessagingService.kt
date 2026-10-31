@@ -1,5 +1,6 @@
 package com.dio.alert
 
+import android.os.PowerManager
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -16,7 +17,9 @@ class AlertMessagingService : FirebaseMessagingService() {
         val kind = message.data["kind"] ?: return
         message.data["sentAt"]?.toLongOrNull()?.let { sentAt ->
             val now = System.currentTimeMillis()
-            Prefs(this).lastDelivery = now to (now - sentAt).coerceAtLeast(0)
+            // Screen off is the real test: that's when the phone saves battery by holding messages back.
+            val screenOff = !getSystemService(PowerManager::class.java).isInteractive
+            Prefs(this).lastDelivery = Prefs.Delivery(now, (now - sentAt).coerceAtLeast(0), screenOff)
         }
         val region = message.data["region"]?.let { Region(0, it, message.data["regionEn"] ?: it) } ?: Prefs(this).region
         AlertNotifier.show(this, kind, region, message.data["minutes"]?.toIntOrNull(), message.data["test"] == "1")

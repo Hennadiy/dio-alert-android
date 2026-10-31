@@ -374,8 +374,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Something on the phone that can stop alerts from arriving or sounding, and how to fix it. */
-    /** [doneStep]: a step the app can't check; the user marks it done and it stays hidden. */
-    private class SetupIssue(val text: CharSequence, val buttonRes: Int, val doneStep: String? = null, val fix: () -> Unit)
+    private class SetupIssue(val text: CharSequence, val buttonRes: Int, val fix: () -> Unit)
 
     /**
      * Checks everything on the phone that can stop an alert from arriving, showing or sounding,
@@ -391,15 +390,6 @@ class MainActivity : AppCompatActivity() {
             row.findViewById<MaterialButton>(R.id.issueButton).apply {
                 setText(issue.buttonRes)
                 setOnClickListener { issue.fix() }
-            }
-            issue.doneStep?.let { step ->
-                row.findViewById<MaterialButton>(R.id.issueDoneButton).apply {
-                    visibility = View.VISIBLE
-                    setOnClickListener {
-                        prefs.markStepDone(step)
-                        updateSetup()
-                    }
-                }
             }
             issuesList.addView(row)
         }
@@ -487,25 +477,33 @@ class MainActivity : AppCompatActivity() {
             issues += SetupIssue(getString(R.string.issue_adaptive_battery), R.string.battery_settings) { openBatterySettings() }
         }
 
-        issues += makerSteps().filterNot { it.doneStep != null && prefs.isStepDone(it.doneStep) }
+        // Maker settings can't be read, so their result is checked instead: they show until an
+        // alert arrives on time with the screen off, and come back if one arrives late.
+        val delivery = prefs.lastDelivery
+        val provenOnTime = delivery != null && delivery.screenOff && delivery.delayMs <= ON_TIME_MS
+        if (!provenOnTime) {
+            val steps = makerSteps()
+            if (steps.isNotEmpty()) {
+                val first = steps.first()
+                issues += SetupIssue(getString(R.string.maker_steps_hint) + "\n\n" + first.text, first.buttonRes, first.fix)
+                issues += steps.drop(1)
+            }
+        }
         return issues
     }
 
-    /**
-     * Settings some makers add on top of Android that hold alerts back, which no API can read:
-     * shown until the user marks each one done.
-     */
+    /** Settings some makers add on top of Android that hold alerts back, which no API can read. */
     private fun makerSteps(): List<SetupIssue> = when (Build.MANUFACTURER.lowercase()) {
         "oneplus", "oppo", "realme" -> listOf(
-            SetupIssue(getString(R.string.step_sleep_standby), R.string.battery_settings, "sleep_standby") { openBatterySettings() },
-            SetupIssue(getString(R.string.step_lock_recents), R.string.open_recents, "lock_recents") { openRecents() }
+            SetupIssue(getString(R.string.step_sleep_standby), R.string.battery_settings) { openBatterySettings() },
+            SetupIssue(getString(R.string.step_lock_recents), R.string.open_recents) { openRecents() }
         )
         "xiaomi", "redmi", "poco" -> listOf(
-            SetupIssue(getString(R.string.step_autostart), R.string.app_settings, "autostart") { openAppSettings() },
-            SetupIssue(getString(R.string.step_lock_recents), R.string.open_recents, "lock_recents") { openRecents() }
+            SetupIssue(getString(R.string.step_autostart), R.string.app_settings) { openAppSettings() },
+            SetupIssue(getString(R.string.step_lock_recents), R.string.open_recents) { openRecents() }
         )
         "samsung" -> listOf(
-            SetupIssue(getString(R.string.step_never_sleeping), R.string.battery_settings, "never_sleeping") { openBatterySettings() }
+            SetupIssue(getString(R.string.step_never_sleeping), R.string.battery_settings) { openBatterySettings() }
         )
         else -> emptyList()
     }
@@ -601,6 +599,8 @@ class MainActivity : AppCompatActivity() {
         const val ALERTS_SOURCE_URL = "https://alerts.in.ua/"
         /** A delivery this slow means the phone held the alert back. */
         const val LATE_DELIVERY_SECONDS = 60L
+        /** An alert this quick with the screen off proves the phone isn't holding alerts back. */
+        const val ON_TIME_MS = 30_000L
     }
 
     private fun toast(text: String) {

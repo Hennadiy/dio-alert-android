@@ -32,20 +32,21 @@ class Prefs(context: Context) {
         get() = prefs.getString(KEY_REGIONS, null)?.let { runCatching { Region.listFromJson(JSONArray(it)) }.getOrNull() } ?: emptyList()
         set(value) = prefs.edit().putString(KEY_REGIONS, JSONArray(value.map { it.toJson() }).toString()).apply()
 
-    /** When the last alert arrived and how long it took from Mind (ms), to spot a phone that holds alerts back. */
-    var lastDelivery: Pair<Long, Long>?
-        get() = if (prefs.contains(KEY_DELIVERED_AT)) prefs.getLong(KEY_DELIVERED_AT, 0) to prefs.getLong(KEY_DELIVERY_DELAY, 0) else null
+    /** The last alert to arrive: when, how long it took from Mind, and whether the screen was off. */
+    data class Delivery(val at: Long, val delayMs: Long, val screenOff: Boolean)
+
+    var lastDelivery: Delivery?
+        get() = if (prefs.contains(KEY_DELIVERED_AT)) Delivery(
+            prefs.getLong(KEY_DELIVERED_AT, 0),
+            prefs.getLong(KEY_DELIVERY_DELAY, 0),
+            prefs.getBoolean(KEY_DELIVERY_SCREEN_OFF, false)
+        ) else null
         set(value) {
-            if (value == null) prefs.edit().remove(KEY_DELIVERED_AT).remove(KEY_DELIVERY_DELAY).apply()
-            else prefs.edit().putLong(KEY_DELIVERED_AT, value.first).putLong(KEY_DELIVERY_DELAY, value.second).apply()
+            val edit = prefs.edit()
+            if (value == null) edit.remove(KEY_DELIVERED_AT).remove(KEY_DELIVERY_DELAY).remove(KEY_DELIVERY_SCREEN_OFF)
+            else edit.putLong(KEY_DELIVERED_AT, value.at).putLong(KEY_DELIVERY_DELAY, value.delayMs).putBoolean(KEY_DELIVERY_SCREEN_OFF, value.screenOff)
+            edit.apply()
         }
-
-    /** Phone-maker setup steps the app can't check, which the user marked as done. */
-    fun isStepDone(step: String): Boolean = prefs.getStringSet(KEY_DONE_STEPS, emptySet())!!.contains(step)
-
-    fun markStepDone(step: String) {
-        prefs.edit().putStringSet(KEY_DONE_STEPS, prefs.getStringSet(KEY_DONE_STEPS, emptySet())!! + step).apply()
-    }
 
     val isConnected: Boolean
         get() = !deviceKey.isNullOrEmpty()
@@ -64,9 +65,9 @@ class Prefs(context: Context) {
         private const val KEY_TOKEN = "fcm_token"
         private const val KEY_EMAIL = "user_email"
         private const val KEY_REGION = "region"
-        private const val KEY_DONE_STEPS = "done_steps"
         private const val KEY_DELIVERED_AT = "delivered_at"
         private const val KEY_DELIVERY_DELAY = "delivery_delay"
+        private const val KEY_DELIVERY_SCREEN_OFF = "delivery_screen_off"
         private const val KEY_REGIONS = "regions"
 
         /** Shown in Mind's list of connected phones. */
