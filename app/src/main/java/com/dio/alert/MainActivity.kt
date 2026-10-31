@@ -96,9 +96,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.notificationSettingsButton).setOnClickListener { openNotificationSettings() }
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
         findViewById<MaterialButton>(R.id.languageButton).setOnClickListener { pickLanguage() }
-        findViewById<TextView>(R.id.sourceText).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ALERTS_SOURCE_URL)))
-        }
 
         regionButton.setOnClickListener { pickRegion() }
         signInButton.setOnClickListener { if (isRegistering) register() else signIn() }
@@ -596,7 +593,6 @@ class MainActivity : AppCompatActivity() {
     private fun toast(resId: Int) = toast(getString(resId))
 
     private companion object {
-        const val ALERTS_SOURCE_URL = "https://alerts.in.ua/"
         /** A delivery this slow means the phone held the alert back. */
         const val LATE_DELIVERY_SECONDS = 60L
         /** An alert this quick with the screen off proves the phone isn't holding alerts back. */

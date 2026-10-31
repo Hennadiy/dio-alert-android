@@ -97,6 +97,6 @@
     <string name="language_button">Мова: українська</string>
     <string name="language_title">Мова</string>
     <string name="language_system">Як на телефоні</string>
-    <string name="source_note">Дані про тривоги надає alerts.in.ua</string>
+    <string name="source_note">Неофіційний застосунок, не пов’язаний з державними органами. Тривоги оголошують органи влади України (офіційна карта: https://map.ukrainealarm.com/), а застосунок отримує їх через API alerts.in.ua (https://devs.alerts.in.ua/).</string>
     <string name="version_label">Версія %1$s</string>
 </resources>

@@ -298,17 +298,17 @@
             android:layout_marginTop="16dp"
             android:text="@string/language_button" />
 
-        <!-- Where the alerts come from; opens the site. -->
+        <!-- Unofficial-app disclaimer and where the alerts come from (Google Play's Misleading Claims policy). -->
         <TextView
             android:id="@+id/sourceText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
+            android:autoLink="web"
             android:gravity="center"
             android:padding="8dp"
             android:text="@string/source_note"
             android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorPrimary" />
+            android:textColorLink="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/versionText"

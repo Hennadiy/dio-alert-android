@@ -100,6 +100,6 @@
     <string name="language_button">Language: English</string>
     <string name="language_title">Language</string>
     <string name="language_system">As on the phone</string>
-    <string name="source_note">Alert data comes from alerts.in.ua</string>
+    <string name="source_note">Unofficial app, not affiliated with any government entity. Alerts are announced by the authorities of Ukraine (official map: https://map.ukrainealarm.com/) and received through the alerts.in.ua API (https://devs.alerts.in.ua/).</string>
     <string name="version_label">Version %1$s</string>
 </resources>

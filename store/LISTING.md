@@ -1,6 +1,8 @@
 # Google Play store listing
 
-Copy-paste texts for Play Console → Grow → Store presence → Main store listing. Ukrainian is the default language; English is an added translation.
+Copy-paste texts for Play Console → Grow users → Store presence → Store listings. English (en-US) is the default language; Ukrainian is an added translation.
+
+Google's Misleading Claims policy: the description must start with the unofficial-app disclaimer and give working source links. alerts.in.ua itself doesn't open outside Ukraine (Play rejected the listing for a broken source), so the links are the official map (map.ukrainealarm.com) and alerts.in.ua's API docs (devs.alerts.in.ua), which open everywhere.
 
 - **App name:** Dio Alert
 - **Privacy policy URL:** https://github.com/Hennadiy/dio-alert-android/blob/main/PRIVACY.md
@@ -15,6 +17,8 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 
 **Повний опис:**
 
+> ⚠️ Dio Alert — неофіційний застосунок. Він не пов'язаний з жодним державним органом і не представляє його. Він не замінює офіційних сповіщень: стежте також за сиренами й повідомленнями влади.
+>
 > Dio Alert сповіщає про повітряні тривоги у вибраному регіоні — будь-якій області України чи Києві — й одразу каже, що саме загрожує, без погляду на екран.
 >
 > • Дрони — 2 короткі вібрації ×3 і гудіння
@@ -23,9 +27,11 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 >
 > Сигнали звучать на гучності будильника, навіть у беззвучному режимі. Якщо під час тривоги з'являється ракетна загроза, застосунок попередить ще раз.
 >
-> Тривоги надходять із сервісу Mind (дані alerts.in.ua). Для роботи потрібен акаунт Mind: увійдіть у застосунку або створіть акаунт на сайті.
+> Джерела інформації:
+> • Повітряні тривоги оголошують органи влади України. Офіційна карта повітряних тривог України: https://map.ukrainealarm.com/
+> • Dio Alert отримує тривоги через API сервісу alerts.in.ua, який їх збирає: https://devs.alerts.in.ua/
 >
-> Dio Alert — неофіційний застосунок, не пов'язаний з державними органами. Він не замінює офіційних сповіщень: стежте також за сиренами, застосунком «Повітряна тривога» та повідомленнями влади.
+> Для роботи потрібен акаунт Mind: увійдіть у застосунку або створіть акаунт просто в ньому.
 >
 > Без реклами й без відстеження.
 
@@ -37,17 +43,21 @@ Copy-paste texts for Play Console → Grow → Store presence → Main store lis
 
 **Full description:**
 
-> Dio Alert notifies you of air raid alerts in the region you pick (any oblast of Ukraine, or Kyiv) and tells you what the threat is — without looking at the screen.
+> ⚠️ Dio Alert is an unofficial app. It is not affiliated with and does not represent any government entity. It does not replace official warnings: also follow sirens and announcements from the authorities.
 >
-> • Drones — 2 short vibrations ×3 and a buzz
-> • Missiles — 3 medium vibrations ×5 and a siren
-> • All clear — 1 long vibration ×2 and a calm chime, with how long the alert lasted
+> Dio Alert notifies you of air raid alerts in the region you pick (any oblast of Ukraine, or Kyiv) and tells you what the threat is, without looking at the screen.
+>
+> • Drones: 2 short vibrations ×3 and a buzz
+> • Missiles: 3 medium vibrations ×5 and a siren
+> • All clear: 1 long vibration ×2 and a calm chime, with how long the alert lasted
 >
 > Alerts play at alarm volume, even on silent. If missiles join an ongoing alert, the app warns you again.
 >
-> Alerts come from the Mind service (alerts.in.ua data). A Mind account is required: sign in in the app or create an account on the website.
+> Sources of information:
+> • Air raid alerts are announced by the authorities of Ukraine. Official air raid alert map of Ukraine: https://map.ukrainealarm.com/
+> • Dio Alert receives the alerts through the API of alerts.in.ua, which collects them: https://devs.alerts.in.ua/
 >
-> Dio Alert is an unofficial app, not affiliated with any government body. It does not replace official warnings: also follow sirens, the official "Air Alert" app and announcements from the authorities.
+> A Mind account is required: sign in or create one right in the app.
 >
 > No ads, no tracking.
 
