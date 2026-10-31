@@ -40,6 +40,13 @@ class Prefs(context: Context) {
             else prefs.edit().putLong(KEY_DELIVERED_AT, value.first).putLong(KEY_DELIVERY_DELAY, value.second).apply()
         }
 
+    /** Phone-maker setup steps the app can't check, which the user marked as done. */
+    fun isStepDone(step: String): Boolean = prefs.getStringSet(KEY_DONE_STEPS, emptySet())!!.contains(step)
+
+    fun markStepDone(step: String) {
+        prefs.edit().putStringSet(KEY_DONE_STEPS, prefs.getStringSet(KEY_DONE_STEPS, emptySet())!! + step).apply()
+    }
+
     val isConnected: Boolean
         get() = !deviceKey.isNullOrEmpty()
 
@@ -57,6 +64,7 @@ class Prefs(context: Context) {
         private const val KEY_TOKEN = "fcm_token"
         private const val KEY_EMAIL = "user_email"
         private const val KEY_REGION = "region"
+        private const val KEY_DONE_STEPS = "done_steps"
         private const val KEY_DELIVERED_AT = "delivered_at"
         private const val KEY_DELIVERY_DELAY = "delivery_delay"
         private const val KEY_REGIONS = "regions"

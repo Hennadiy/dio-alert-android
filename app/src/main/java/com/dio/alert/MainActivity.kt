@@ -374,7 +374,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Something on the phone that can stop alerts from arriving or sounding, and how to fix it. */
-    private class SetupIssue(val text: CharSequence, val buttonRes: Int, val fix: () -> Unit)
+    /** [doneStep]: a step the app can't check; the user marks it done and it stays hidden. */
+    private class SetupIssue(val text: CharSequence, val buttonRes: Int, val doneStep: String? = null, val fix: () -> Unit)
 
     /**
      * Checks everything on the phone that can stop an alert from arriving, showing or sounding,
@@ -390,6 +391,15 @@ class MainActivity : AppCompatActivity() {
             row.findViewById<MaterialButton>(R.id.issueButton).apply {
                 setText(issue.buttonRes)
                 setOnClickListener { issue.fix() }
+            }
+            issue.doneStep?.let { step ->
+                row.findViewById<MaterialButton>(R.id.issueDoneButton).apply {
+                    visibility = View.VISIBLE
+                    setOnClickListener {
+                        prefs.markStepDone(step)
+                        updateSetup()
+                    }
+                }
             }
             issuesList.addView(row)
         }
@@ -472,7 +482,43 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent("android.settings.ZEN_MODE_SETTINGS"))
             }
         }
+        // Adaptive battery learns which apps to hold back; an alert app used rarely is one.
+        if (Settings.Global.getInt(contentResolver, "adaptive_battery_management_enabled", 0) == 1) {
+            issues += SetupIssue(getString(R.string.issue_adaptive_battery), R.string.battery_settings) { openBatterySettings() }
+        }
+
+        issues += makerSteps().filterNot { it.doneStep != null && prefs.isStepDone(it.doneStep) }
         return issues
+    }
+
+    /**
+     * Settings some makers add on top of Android that hold alerts back, which no API can read:
+     * shown until the user marks each one done.
+     */
+    private fun makerSteps(): List<SetupIssue> = when (Build.MANUFACTURER.lowercase()) {
+        "oneplus", "oppo", "realme" -> listOf(
+            SetupIssue(getString(R.string.step_sleep_standby), R.string.battery_settings, "sleep_standby") { openBatterySettings() },
+            SetupIssue(getString(R.string.step_lock_recents), R.string.open_recents, "lock_recents") { openRecents() }
+        )
+        "xiaomi", "redmi", "poco" -> listOf(
+            SetupIssue(getString(R.string.step_autostart), R.string.app_settings, "autostart") { openAppSettings() },
+            SetupIssue(getString(R.string.step_lock_recents), R.string.open_recents, "lock_recents") { openRecents() }
+        )
+        "samsung" -> listOf(
+            SetupIssue(getString(R.string.step_never_sleeping), R.string.battery_settings, "never_sleeping") { openBatterySettings() }
+        )
+        else -> emptyList()
+    }
+
+    private fun openBatterySettings() {
+        val battery = Intent(Intent.ACTION_POWER_USAGE_SUMMARY)
+        startActivity(if (battery.resolveActivity(packageManager) != null) battery else Intent(Settings.ACTION_SETTINGS))
+    }
+
+    // There is no intent for the recent apps screen; going home leaves the user one swipe away.
+    private fun openRecents() {
+        toast(R.string.recents_hint)
+        startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     private fun dndBlocksAlarms(): Boolean {
