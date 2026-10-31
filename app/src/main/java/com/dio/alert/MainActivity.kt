@@ -3,6 +3,7 @@ package com.dio.alert
 import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationManager
+import android.app.usage.UsageStatsManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var setupCard: View
     private lateinit var regionButton: MaterialButton
     private lateinit var statusText: TextView
+    private lateinit var deliveryText: TextView
     private lateinit var connectionText: TextView
     private lateinit var disconnectButton: MaterialButton
     private lateinit var signInGroup: View
@@ -75,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         setupCard = findViewById(R.id.setupCard)
         regionButton = findViewById(R.id.regionButton)
         statusText = findViewById(R.id.statusText)
+        deliveryText = findViewById(R.id.deliveryText)
         connectionText = findViewById(R.id.connectionText)
         disconnectButton = findViewById(R.id.disconnectButton)
         signInGroup = findViewById(R.id.signInGroup)
@@ -301,7 +304,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** "The last alert arrived at 14:05, 3 s after Mind sent it"; red when it took over a minute. */
+    private fun updateDelivery() {
+        val (at, delayMs) = prefs.lastDelivery ?: run {
+            deliveryText.visibility = View.GONE
+            return
+        }
+        val time = DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(at))
+        val seconds = delayMs / 1000
+        val delay = if (seconds < 60) getString(R.string.delay_seconds, seconds) else getString(R.string.delay_minutes, seconds / 60)
+        deliveryText.text = getString(R.string.last_delivery, time, delay)
+        deliveryText.setTextColor(
+            if (seconds >= LATE_DELIVERY_SECONDS) ContextCompat.getColor(this, R.color.danger)
+            else statusText.currentTextColor
+        )
+        deliveryText.visibility = View.VISIBLE
+    }
+
     private fun loadStatus() {
+        updateDelivery()
         val regionUid = prefs.region.uid
         lifecycleScope.launch {
             val text = try {
@@ -400,6 +421,14 @@ class MainActivity : AppCompatActivity() {
             issues += SetupIssue(getString(batteryHintRes()), R.string.battery_exemption) { requestBatteryExemption() }
         }
 
+        // Android rations high-priority messages for apps it rates rarely used (standby buckets,
+        // Android 9+): they arrive late. Exempting from battery optimisation moves the app out.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+            getSystemService(UsageStatsManager::class.java).appStandbyBucket >= UsageStatsManager.STANDBY_BUCKET_RARE
+        ) {
+            issues += SetupIssue(getString(R.string.issue_standby), R.string.app_settings) { openAppSettings() }
+        }
+
         // "Restricted" background use (Android 9+) drops the messages that wake the app.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
             getSystemService(ActivityManager::class.java).isBackgroundRestricted
@@ -472,6 +501,7 @@ class MainActivity : AppCompatActivity() {
         val maker = Build.MANUFACTURER.lowercase()
         return when {
             maker == "samsung" -> R.string.battery_hint_samsung
+            maker == "oneplus" -> R.string.battery_hint_oneplus
             maker in setOf("xiaomi", "redmi", "poco") -> R.string.battery_hint_xiaomi
             Build.VERSION.SDK_INT >= 34 -> R.string.battery_hint_14
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> R.string.battery_hint_12
@@ -523,6 +553,8 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val ALERTS_SOURCE_URL = "https://alerts.in.ua/"
+        /** A delivery this slow means the phone held the alert back. */
+        const val LATE_DELIVERY_SECONDS = 60L
     }
 
     private fun toast(text: String) {

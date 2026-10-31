@@ -56,6 +56,11 @@
     <string name="connected">Підключено</string>
     <string name="key_revoked">Вас від’єднано в Mind. Увійдіть знову, щоб отримувати тривоги.</string>
 
+    <string name="last_delivery">Остання тривога прийшла %1$s, через %2$s після надсилання з Mind.</string>
+    <string name="delay_seconds">%1$d с</string>
+    <string name="delay_minutes">%1$d хв</string>
+    <string name="issue_standby">Android вважає Dio Alert рідко використовуваним і затримує його тривоги. Вимкніть для нього оптимізацію батареї й інколи відкривайте застосунок.</string>
+    <string name="battery_hint_oneplus">Кнопка відкриє налаштування Dio Alert. Відкрийте «Використання батареї» й увімкніть «Дозволити фонову активність»; також у Батарея → Оптимізація батареї виберіть для Dio Alert «Не оптимізувати», а в недавніх застосунках закріпіть Dio Alert.</string>
     <string name="setup_title">Перевірте телефон</string>
     <string name="setup_hint">Ці налаштування можуть завадити тривогам прийти вчасно чи прозвучати. Картка зникне, щойно їх виправите.</string>
     <string name="issue_notifications">Сповіщення для Dio Alert вимкнено: тривоги не з’являтимуться.</string>

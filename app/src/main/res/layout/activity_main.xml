@@ -82,6 +82,15 @@
                     android:layout_height="wrap_content"
                     android:text="@string/status_unknown"
                     android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+                <!-- How long the last alert took to arrive: a phone that holds alerts back shows here. -->
+                <TextView
+                    android:id="@+id/deliveryText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

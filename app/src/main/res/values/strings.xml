@@ -59,6 +59,11 @@
     <string name="connected">Connected</string>
     <string name="key_revoked">You were signed out in Mind. Sign in again to get alerts.</string>
 
+    <string name="last_delivery">Last alert arrived %1$s, %2$s after Mind sent it.</string>
+    <string name="delay_seconds">%1$d s</string>
+    <string name="delay_minutes">%1$d min</string>
+    <string name="issue_standby">Android rates Dio Alert as rarely used and delays its alerts. Turn off battery optimisation for it and open the app now and then.</string>
+    <string name="battery_hint_oneplus">The button opens Dio Alert’s settings. Open “Battery usage” and turn on “Allow background activity”; also set Battery → Battery optimisation → Dio Alert to “Don’t optimise”, and in recent apps lock Dio Alert.</string>
     <string name="setup_title">Check your phone</string>
     <string name="setup_hint">These settings can stop alerts from arriving on time or sounding. This card disappears once they are fixed.</string>
     <string name="issue_notifications">Notifications are off for Dio Alert: alerts won’t show.</string>

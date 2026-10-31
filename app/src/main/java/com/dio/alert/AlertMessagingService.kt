@@ -14,6 +14,10 @@ class AlertMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         val kind = message.data["kind"] ?: return
+        message.data["sentAt"]?.toLongOrNull()?.let { sentAt ->
+            val now = System.currentTimeMillis()
+            Prefs(this).lastDelivery = now to (now - sentAt).coerceAtLeast(0)
+        }
         val region = message.data["region"]?.let { Region(0, it, message.data["regionEn"] ?: it) } ?: Prefs(this).region
         AlertNotifier.show(this, kind, region, message.data["minutes"]?.toIntOrNull(), message.data["test"] == "1")
         AlertSound.playAndWait(this, kind)

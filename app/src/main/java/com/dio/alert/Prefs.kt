@@ -32,6 +32,14 @@ class Prefs(context: Context) {
         get() = prefs.getString(KEY_REGIONS, null)?.let { runCatching { Region.listFromJson(JSONArray(it)) }.getOrNull() } ?: emptyList()
         set(value) = prefs.edit().putString(KEY_REGIONS, JSONArray(value.map { it.toJson() }).toString()).apply()
 
+    /** When the last alert arrived and how long it took from Mind (ms), to spot a phone that holds alerts back. */
+    var lastDelivery: Pair<Long, Long>?
+        get() = if (prefs.contains(KEY_DELIVERED_AT)) prefs.getLong(KEY_DELIVERED_AT, 0) to prefs.getLong(KEY_DELIVERY_DELAY, 0) else null
+        set(value) {
+            if (value == null) prefs.edit().remove(KEY_DELIVERED_AT).remove(KEY_DELIVERY_DELAY).apply()
+            else prefs.edit().putLong(KEY_DELIVERED_AT, value.first).putLong(KEY_DELIVERY_DELAY, value.second).apply()
+        }
+
     val isConnected: Boolean
         get() = !deviceKey.isNullOrEmpty()
 
@@ -49,6 +57,8 @@ class Prefs(context: Context) {
         private const val KEY_TOKEN = "fcm_token"
         private const val KEY_EMAIL = "user_email"
         private const val KEY_REGION = "region"
+        private const val KEY_DELIVERED_AT = "delivered_at"
+        private const val KEY_DELIVERY_DELAY = "delivery_delay"
         private const val KEY_REGIONS = "regions"
 
         /** Shown in Mind's list of connected phones. */
