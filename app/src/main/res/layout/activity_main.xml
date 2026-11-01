@@ -1,420 +1,428 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
+    <!-- Title and the two settings shortcuts: stay put while the cards scroll. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/app_name"
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/notificationSettingsButton"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/notification_settings"
+            android:tooltipText="@string/notification_settings"
+            app:icon="@drawable/ic_notifications" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/appSettingsButton"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/app_settings"
+            android:tooltipText="@string/app_settings"
+            app:icon="@drawable/ic_settings" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/app_name"
-                android:textAppearance="?attr/textAppearanceHeadlineMedium"
-                android:textStyle="bold" />
+            <!-- The region and its current state (signed in only) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/regionCard"
+                style="@style/Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/notificationSettingsButton"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/notification_settings"
-                android:tooltipText="@string/notification_settings"
-                app:icon="@drawable/ic_notifications" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/appSettingsButton"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/app_settings"
-                android:tooltipText="@string/app_settings"
-                app:icon="@drawable/ic_settings" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/app_tagline"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-        <!-- The region and its current state (signed in only) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/regionCard"
-            style="@style/Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout style="@style/CardBody">
-
-                <TextView
-                    style="@style/SectionTitle"
-                    android:text="@string/region_title" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/regionButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="start|center_vertical"
-                    android:contentDescription="@string/region_pick_title"
-                    app:icon="@drawable/ic_expand_more"
-                    app:iconGravity="end" />
-
-                <TextView
-                    android:id="@+id/statusText"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/status_unknown"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
-
-                <!-- How long the last alert took to arrive: a phone that holds alerts back shows here. -->
-                <TextView
-                    android:id="@+id/deliveryText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textAppearance="?attr/textAppearanceBodySmall"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- How alerts sound and vibrate (signed in only) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/alertSettingsCard"
-            style="@style/Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout style="@style/CardBody">
-
-                <TextView
-                    style="@style/SectionTitle"
-                    android:text="@string/alert_settings_title" />
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/soundSwitch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sound_switch" />
-
-                <TextView
-                    android:id="@+id/volumeLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/sound_volume"
-                    android:textAppearance="?attr/textAppearanceBodySmall" />
-
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/volumeSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/sound_volume"
-                    android:stepSize="10"
-                    android:valueFrom="0"
-                    android:valueTo="100" />
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/vibrationSwitch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/vibration_switch" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/tryAlertButton"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/try_alert" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Connection to Mind -->
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout style="@style/CardBody">
-
-                <TextView
-                    style="@style/SectionTitle"
-                    android:text="@string/connection_title" />
-
-                <!-- The signed-in account, in its own bubble. -->
-                <LinearLayout
-                    android:id="@+id/accountChip"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/bg_account_chip"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="8dp"
-                    android:visibility="gone">
+                <LinearLayout style="@style/CardBody">
 
                     <TextView
-                        android:id="@+id/accountInitial"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/bg_avatar"
-                        android:gravity="center"
-                        android:textColor="?attr/colorOnPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/signed_in_as"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnPrimaryContainer" />
-
-                        <TextView
-                            android:id="@+id/accountEmail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="middle"
-                            android:singleLine="true"
-                            android:textAppearance="?attr/textAppearanceBodyLarge"
-                            android:textColor="?attr/colorOnPrimaryContainer" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/connectionText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/connection_off"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/signInGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Registration only: shown by "Create a Mind account". -->
-                    <LinearLayout
-                        android:id="@+id/registerFields"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/firstNameInputLayout"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="@string/first_name">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/firstNameInput"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="textPersonName|textCapWords"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/lastNameInputLayout"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="@string/last_name">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/lastNameInput"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="textPersonName|textCapWords"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/phoneInputLayout"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="@string/phone">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/phoneInput"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="phone"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                    </LinearLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/emailInputLayout"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:hint="@string/email">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/emailInput"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textEmailAddress"
-                            android:maxLines="1" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/passwordInputLayout"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:hint="@string/password"
-                        app:endIconMode="password_toggle">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/passwordInput"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textPassword"
-                            android:maxLines="1" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                        style="@style/SectionTitle"
+                        android:text="@string/region_title" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/signInButton"
+                        android:id="@+id/regionButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|center_vertical"
+                        android:contentDescription="@string/region_pick_title"
+                        app:icon="@drawable/ic_expand_more"
+                        app:iconGravity="end" />
+
+                    <TextView
+                        android:id="@+id/statusText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="@string/sign_in" />
+                        android:background="@drawable/bg_status_pill"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp"
+                        android:text="@string/status_unknown"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textStyle="bold" />
 
+                    <!-- How long the last alert took to arrive: a phone that holds alerts back shows here. -->
                     <TextView
-                        android:id="@+id/registerHint"
+                        android:id="@+id/deliveryText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="@string/register_hint"
                         android:textAppearance="?attr/textAppearanceBodySmall"
                         android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                    <LinearLayout
+            <!-- How alerts sound and vibrate (signed in only) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/alertSettingsCard"
+                style="@style/Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout style="@style/CardBody">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/soundSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sound_switch" />
+
+                    <TextView
+                        android:id="@+id/volumeLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:orientation="horizontal">
+                        android:text="@string/sound_volume"
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/modeButton"
-                            style="@style/Widget.Material3.Button.TextButton"
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/volumeSlider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/sound_volume"
+                        android:stepSize="10"
+                        android:valueFrom="0"
+                        android:valueTo="100" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/vibrationSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vibration_switch" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/tryAlertButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/try_alert" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Connection to Mind -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout style="@style/CardBody">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="@string/connection_title" />
+
+                    <!-- The signed-in account, in its own bubble. -->
+                    <LinearLayout
+                        android:id="@+id/accountChip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/bg_account_chip"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/accountInitial"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_avatar"
+                            android:gravity="center"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
                             android:layout_weight="1"
-                            android:text="@string/register" />
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/signed_in_as"
+                                android:textAppearance="?attr/textAppearanceLabelSmall"
+                                android:textColor="?attr/colorOnPrimaryContainer" />
+
+                            <TextView
+                                android:id="@+id/accountEmail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="middle"
+                                android:singleLine="true"
+                                android:textAppearance="?attr/textAppearanceBodyLarge"
+                                android:textColor="?attr/colorOnPrimaryContainer" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/connectionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/connection_off"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/signInGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Registration only: shown by "Create a Mind account". -->
+                        <LinearLayout
+                            android:id="@+id/registerFields"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/firstNameInputLayout"
+                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:hint="@string/first_name">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/firstNameInput"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPersonName|textCapWords"
+                                    android:maxLines="1" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/lastNameInputLayout"
+                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:hint="@string/last_name">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/lastNameInput"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPersonName|textCapWords"
+                                    android:maxLines="1" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/phoneInputLayout"
+                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:hint="@string/phone">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/phoneInput"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="phone"
+                                    android:maxLines="1" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/emailInputLayout"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:hint="@string/email">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/emailInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textEmailAddress"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/passwordInputLayout"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:hint="@string/password"
+                            app:endIconMode="password_toggle">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/passwordInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/forgotButton"
-                            style="@style/Widget.Material3.Button.TextButton"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/signInButton"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/forgot_password" />
+                            android:layout_marginTop="12dp"
+                            android:text="@string/sign_in" />
+
+                        <TextView
+                            android:id="@+id/registerHint"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/register_hint"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:visibility="gone" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/modeButton"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/register" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/forgotButton"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/forgot_password" />
+                        </LinearLayout>
                     </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/disconnectButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/disconnect"
+                        android:visibility="gone" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/disconnectButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/disconnect"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <!-- What on this phone can stop alerts; shown only while something does (signed in only). -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/setupCard"
+                style="@style/Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
-        <!-- What on this phone can stop alerts; shown only while something does (signed in only). -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/setupCard"
-            style="@style/Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
+                <LinearLayout style="@style/CardBody">
 
-            <LinearLayout style="@style/CardBody">
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="@string/setup_title" />
 
-                <TextView
-                    style="@style/SectionTitle"
-                    android:text="@string/setup_title" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_hint"
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/setup_hint"
-                    android:textAppearance="?attr/textAppearanceBodySmall" />
-
-                <LinearLayout
-                    android:id="@+id/issuesList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <LinearLayout
+                        android:id="@+id/issuesList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/languageButton"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:text="@string/language_button" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/languageButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:text="@string/language_button" />
 
-        <!-- Unofficial-app disclaimer and where the alerts come from (Google Play's Misleading Claims policy). -->
-        <TextView
-            android:id="@+id/sourceText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autoLink="web"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/source_note"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColorLink="?attr/colorPrimary" />
+            <!-- Unofficial-app disclaimer and where the alerts come from (Google Play's Misleading Claims policy). -->
+            <TextView
+                android:id="@+id/sourceText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="@string/source_note"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColorLink="?attr/colorPrimary" />
 
-        <TextView
-            android:id="@+id/versionText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="center"
-            android:textAppearance="?attr/textAppearanceBodySmall" />
-    </LinearLayout>
-</ScrollView>
+            <TextView
+                android:id="@+id/versionText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceBodySmall" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

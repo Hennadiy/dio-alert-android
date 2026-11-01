@@ -7,4 +7,10 @@
     <color name="on_accent_container">#F2EDFF</color>
     <color name="danger">#F28B82</color>
     <color name="calm">#81C995</color>
+    <color name="status_alert_bg">#5C1B16</color>
+    <color name="status_alert_fg">#FFB4AB</color>
+    <color name="status_calm_bg">#173D24</color>
+    <color name="status_calm_fg">#A8DAB5</color>
+    <color name="status_unknown_bg">#2E2D33</color>
+    <color name="status_unknown_fg">#C9C5D0</color>
 </resources>

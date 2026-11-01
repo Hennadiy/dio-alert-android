@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.app.NotificationManager
 import android.app.usage.UsageStatsManager
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.net.ConnectivityManager
@@ -335,7 +336,7 @@ class MainActivity : AppCompatActivity() {
         val previous = prefs.region
         prefs.region = region
         updateRegion()
-        statusText.text = getString(R.string.status_unknown)
+        showStatus(null)
         loadStatus()
 
         val key = prefs.deviceKey ?: return
@@ -376,32 +377,37 @@ class MainActivity : AppCompatActivity() {
         updateDelivery()
         val regionUid = prefs.region.uid
         lifecycleScope.launch {
-            val text = try {
-                val status = withContext(Dispatchers.IO) { ApiClient.getStatus(regionUid) }
-                describe(status)
+            val status = try {
+                withContext(Dispatchers.IO) { ApiClient.getStatus(regionUid) }
             } catch (e: Exception) {
-                getString(R.string.status_unknown)
+                null
             }
-            statusText.text = text
+            showStatus(status)
         }
     }
 
-    private fun describe(status: AlertStatus): String {
-        if (!status.isConfigured || status.isActive == null) {
-            return getString(R.string.status_unknown)
-        }
-        if (!status.isActive) {
-            return getString(R.string.status_calm)
-        }
-        val kind = getString(
-            when (status.kind) {
-                "drones" -> R.string.status_drones
-                "missiles" -> R.string.status_missiles
-                else -> R.string.status_general
+    /** The region's state as a pill: red with the threat during an alert, green when calm, grey when unknown. */
+    private fun showStatus(status: AlertStatus?) {
+        val (text, bg, fg) = when {
+            status == null || !status.isConfigured || status.isActive == null ->
+                Triple(getString(R.string.status_unknown), R.color.status_unknown_bg, R.color.status_unknown_fg)
+            !status.isActive ->
+                Triple(getString(R.string.status_calm), R.color.status_calm_bg, R.color.status_calm_fg)
+            else -> {
+                val kind = getString(
+                    when (status.kind) {
+                        "drones" -> R.string.status_drones
+                        "missiles" -> R.string.status_missiles
+                        else -> R.string.status_general
+                    }
+                )
+                val since = status.since?.let { formatTime(it) }
+                Triple(if (since != null) getString(R.string.status_since, kind, since) else kind, R.color.status_alert_bg, R.color.status_alert_fg)
             }
-        )
-        val since = status.since?.let { formatTime(it) } ?: return kind
-        return getString(R.string.status_since, kind, since)
+        }
+        statusText.text = text
+        statusText.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, bg))
+        statusText.setTextColor(ContextCompat.getColor(this, fg))
     }
 
     private fun formatTime(iso: String): String? = runCatching {

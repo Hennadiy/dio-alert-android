@@ -8,5 +8,12 @@
     <color name="on_accent_container">#22005D</color>
     <color name="danger">#C5221F</color>
     <color name="calm">#137333</color>
+    <!-- The region's state pill: background and text per state. -->
+    <color name="status_alert_bg">#FCE8E6</color>
+    <color name="status_alert_fg">#A50E0E</color>
+    <color name="status_calm_bg">#E6F4EA</color>
+    <color name="status_calm_fg">#0D652D</color>
+    <color name="status_unknown_bg">#EEEDF2</color>
+    <color name="status_unknown_fg">#47464F</color>
     <color name="launcher_background">#D93025</color>
 </resources>

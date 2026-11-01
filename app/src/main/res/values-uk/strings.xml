@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">Повітряні тривоги у вашому регіоні з Mind: окрема вібрація й звук для дронів, ракет і відбою.</string>
 
     <string name="channel_drones">Тривога: дрони</string>
     <string name="channel_missiles">Тривога: ракети</string>
@@ -22,12 +21,12 @@
     <string name="region_pick_title">Тривоги для якого регіону?</string>
     <string name="region_changed">Тепер тривоги приходять для: %1$s</string>
     <string name="regions_unavailable">Не вдалося завантажити регіони. Перевірте з’єднання й спробуйте ще раз.</string>
-    <string name="status_unknown">Стан невідомий</string>
-    <string name="status_calm">Тривоги немає</string>
-    <string name="status_general">Повітряна тривога</string>
-    <string name="status_drones">Тривога: ударні дрони</string>
-    <string name="status_missiles">Тривога: ракетна загроза</string>
-    <string name="status_since">%1$s з %2$s</string>
+    <string name="status_unknown">❔ Стан невідомий</string>
+    <string name="status_calm">✅ Тривоги немає</string>
+    <string name="status_general">🚨 Повітряна тривога</string>
+    <string name="status_drones">🛩️ Ударні дрони</string>
+    <string name="status_missiles">🚀 Ракетна загроза</string>
+    <string name="status_since">%1$s · з %2$s</string>
 
     <string name="connection_title">Підключення до Mind</string>
     <string name="connection_on">Підключено: тривоги приходитимуть на цей телефон</string>
@@ -70,7 +69,6 @@
     <string name="step_lock_recents">Закріпіть Dio Alert у недавніх застосунках (⋮ або затисніть картку → Заблокувати), щоб система його не закривала.</string>
     <string name="step_autostart">Увімкніть «Автозапуск» для Dio Alert у налаштуваннях застосунку, щоб він міг прокинутися для тривоги.</string>
     <string name="step_never_sleeping">Додайте Dio Alert до «Програм, що ніколи не переходять у режим сну» (Батарея → Обмеження фонового режиму).</string>
-    <string name="alert_settings_title">Звук і вібрація тривог</string>
     <string name="sound_switch">Звук</string>
     <string name="sound_volume">Гучність звуку</string>
     <string name="sound_volume_value">Гучність звуку: %1$d%% від гучності будильника</string>
