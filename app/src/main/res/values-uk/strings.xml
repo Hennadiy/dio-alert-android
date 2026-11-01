@@ -32,7 +32,7 @@
     <string name="connection_title">Підключення до Mind</string>
     <string name="connection_on">Підключено: тривоги приходитимуть на цей телефон</string>
     <string name="connection_off">Вхід не виконано</string>
-    <string name="connection_on_as">Ви увійшли як %1$s: тривоги приходитимуть на цей телефон</string>
+    <string name="signed_in_as">Ви увійшли як</string>
     <string name="sign_in">Увійти</string>
     <string name="register">Створити акаунт Mind</string>
     <string name="register_submit">Створити акаунт</string>

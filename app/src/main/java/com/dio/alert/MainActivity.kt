@@ -49,6 +49,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var deliveryText: TextView
     private lateinit var connectionText: TextView
+    private lateinit var accountChip: View
+    private lateinit var accountInitial: TextView
+    private lateinit var accountEmail: TextView
     private lateinit var disconnectButton: MaterialButton
     private lateinit var signInGroup: View
     private lateinit var signInButton: MaterialButton
@@ -84,6 +87,9 @@ class MainActivity : AppCompatActivity() {
         statusText = findViewById(R.id.statusText)
         deliveryText = findViewById(R.id.deliveryText)
         connectionText = findViewById(R.id.connectionText)
+        accountChip = findViewById(R.id.accountChip)
+        accountInitial = findViewById(R.id.accountInitial)
+        accountEmail = findViewById(R.id.accountEmail)
         disconnectButton = findViewById(R.id.disconnectButton)
         signInGroup = findViewById(R.id.signInGroup)
         signInButton = findViewById(R.id.signInButton)
@@ -405,8 +411,12 @@ class MainActivity : AppCompatActivity() {
     private fun updateConnection() {
         val connected = prefs.isConnected
         val email = prefs.userEmail
+        accountChip.visibility = if (connected && email != null) View.VISIBLE else View.GONE
+        if (email != null) {
+            accountEmail.text = email
+            accountInitial.text = email.first().uppercase()
+        }
         connectionText.text = when {
-            connected && email != null -> getString(R.string.connection_on_as, email)
             connected -> getString(R.string.connection_on)
             else -> getString(R.string.connection_off)
         }

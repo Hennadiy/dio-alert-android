@@ -35,7 +35,7 @@
     <string name="connection_title">Connection to Mind</string>
     <string name="connection_on">Connected: alerts will arrive on this phone</string>
     <string name="connection_off">Not signed in</string>
-    <string name="connection_on_as">Signed in as %1$s: alerts will arrive on this phone</string>
+    <string name="signed_in_as">Signed in as</string>
     <string name="sign_in">Sign in</string>
     <string name="register">Create a Mind account</string>
     <string name="register_submit">Create account</string>
