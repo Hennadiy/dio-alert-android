@@ -102,10 +102,8 @@ jobs:
 
       # Google Play: only on a manual run with "publish" ticked, to the chosen track (internal
       # testing, or "alpha" = closed testing). Needs the secret PLAY_SERVICE_ACCOUNT_JSON (a
-      # service account invited in Play Console with release rights). The change is committed
-      # but not sent for review: Play refuses that while other console changes wait for review,
-      # so it is sent from Play Console → Publishing overview → Send changes for review. Set the
-      # repo variable PLAY_RELEASE_STATUS to "draft" to keep the release a draft.
+      # service account invited in Play Console with release rights). Set the repo variable
+      # PLAY_RELEASE_STATUS to "draft" to keep the release a draft.
       - name: Check Google Play upload
         if: github.event_name == 'workflow_dispatch' && inputs.publish
         env:
@@ -121,14 +119,31 @@ jobs:
           mkdir -p whatsnew
           if [ -n "$NOTES" ]; then printf '%s' "$NOTES" > whatsnew/whatsnew-en-US; fi
 
+      # Play sends a change for review by itself when nothing else waits in the console, and
+      # refuses to while other console changes are pending (then the change is only committed
+      # and sent from Publishing overview). Neither request works in the other state, so the
+      # first try sends for review and the second, only if Play refused, doesn't.
       - name: Upload to Google Play
+        id: upload
         if: github.event_name == 'workflow_dispatch' && inputs.publish
+        continue-on-error: true
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.dio.alert
           releaseFiles: dio-alert.aab
           tracks: ${{ inputs.track }}
-          changesNotSentForReview: true
           status: ${{ vars.PLAY_RELEASE_STATUS || 'completed' }}
           whatsNewDirectory: whatsnew
+
+      - name: Upload to Google Play without sending for review
+        if: github.event_name == 'workflow_dispatch' && inputs.publish && steps.upload.outcome == 'failure'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.dio.alert
+          releaseFiles: dio-alert.aab
+          tracks: ${{ inputs.track }}
+          status: ${{ vars.PLAY_RELEASE_STATUS || 'completed' }}
+          whatsNewDirectory: whatsnew
+          changesNotSentForReview: true
