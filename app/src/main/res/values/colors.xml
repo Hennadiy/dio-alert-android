@@ -9,8 +9,12 @@
     <color name="danger">#C5221F</color>
     <color name="calm">#137333</color>
     <!-- The region's state pill: background and text per state. -->
-    <color name="status_alert_bg">#FCE8E6</color>
-    <color name="status_alert_fg">#A50E0E</color>
+    <color name="status_missiles_bg">#FCE8E6</color>
+    <color name="status_missiles_fg">#A50E0E</color>
+    <color name="status_drones_bg">#FEF3C7</color>
+    <color name="status_drones_fg">#7A4F01</color>
+    <color name="status_general_bg">#FDE9DA</color>
+    <color name="status_general_fg">#9A3B00</color>
     <color name="status_calm_bg">#E6F4EA</color>
     <color name="status_calm_fg">#0D652D</color>
     <color name="status_unknown_bg">#EEEDF2</color>

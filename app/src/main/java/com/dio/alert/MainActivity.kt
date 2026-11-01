@@ -386,33 +386,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** The region's state as a pill: red with the threat during an alert, green when calm, grey when unknown. */
+    /** The region's state as a pill coloured by kind: yellow drones, red missiles, orange other alerts, green calm, grey unknown. */
     private fun showStatus(status: AlertStatus?) {
-        val (text, bg, fg) = when {
+        val (textRes, bg, fg) = when {
             status == null || !status.isConfigured || status.isActive == null ->
-                Triple(getString(R.string.status_unknown), R.color.status_unknown_bg, R.color.status_unknown_fg)
-            !status.isActive ->
-                Triple(getString(R.string.status_calm), R.color.status_calm_bg, R.color.status_calm_fg)
-            else -> {
-                val kind = getString(
-                    when (status.kind) {
-                        "drones" -> R.string.status_drones
-                        "missiles" -> R.string.status_missiles
-                        else -> R.string.status_general
-                    }
-                )
-                val since = status.since?.let { formatTime(it) }
-                Triple(if (since != null) getString(R.string.status_since, kind, since) else kind, R.color.status_alert_bg, R.color.status_alert_fg)
-            }
+                Triple(R.string.status_unknown, R.color.status_unknown_bg, R.color.status_unknown_fg)
+            !status.isActive -> Triple(R.string.status_calm, R.color.status_calm_bg, R.color.status_calm_fg)
+            status.kind == "drones" -> Triple(R.string.status_drones, R.color.status_drones_bg, R.color.status_drones_fg)
+            status.kind == "missiles" -> Triple(R.string.status_missiles, R.color.status_missiles_bg, R.color.status_missiles_fg)
+            else -> Triple(R.string.status_general, R.color.status_general_bg, R.color.status_general_fg)
         }
-        statusText.text = text
+        statusText.setText(textRes)
         statusText.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, bg))
         statusText.setTextColor(ContextCompat.getColor(this, fg))
     }
-
-    private fun formatTime(iso: String): String? = runCatching {
-        DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault()).format(Instant.parse(iso))
-    }.getOrNull()
 
     private fun updateConnection() {
         val connected = prefs.isConnected

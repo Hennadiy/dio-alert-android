@@ -24,12 +24,11 @@
     <string name="region_pick_title">Alerts for which region?</string>
     <string name="region_changed">Alerts now come for: %1$s</string>
     <string name="regions_unavailable">Could not load the regions. Check the connection and try again.</string>
-    <string name="status_unknown">❔ Status unknown</string>
-    <string name="status_calm">✅ No alert</string>
-    <string name="status_general">🚨 Air raid alert</string>
-    <string name="status_drones">🛩️ Attack drones</string>
-    <string name="status_missiles">🚀 Missile threat</string>
-    <string name="status_since">%1$s · since %2$s</string>
+    <string name="status_unknown">Status unknown</string>
+    <string name="status_calm">No alert</string>
+    <string name="status_general">Air raid alert</string>
+    <string name="status_drones">Drone alert</string>
+    <string name="status_missiles">Missile alert</string>
 
     <string name="connection_title">Connection to Mind</string>
     <string name="connection_on">Connected: alerts will arrive on this phone</string>
