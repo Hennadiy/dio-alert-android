@@ -21,21 +21,25 @@ object AlertSound {
 
     private var player: MediaPlayer? = null
 
-    @RawRes
-    private fun soundFor(kind: String): Int = when (kind) {
-        "drones" -> R.raw.alert_drones
-        "end" -> R.raw.alert_end
-        // An alert of unknown type sounds like a missile alert: assume the worst.
-        else -> R.raw.alert_missiles
-    }
-
     /**
      * Plays the sound and waits for it to end (at most [MAX_PLAY_MS]). For FCM's background
      * thread: the app may be closed again as soon as the message handler returns.
      */
-    /** Plays the sound without waiting, ignoring the switch (the settings card's "Try"). */
+    /** Plays a kind's picked sound without waiting, ignoring the switch (the settings card's "Try"). */
     fun preview(context: Context, kind: String) {
-        start(context, kind, null)
+        start(context, Prefs(context).sound(kind).rawRes, null)
+    }
+
+    /** Plays one sound without waiting (choosing a sound in the settings card). */
+    fun preview(context: Context, sound: AlertSounds) {
+        start(context, sound.rawRes, null)
+    }
+
+    /** Stops whatever is playing (the sound chooser closed). */
+    @Synchronized
+    fun stop() {
+        player?.release()
+        player = null
     }
 
     fun playAndWait(context: Context, kind: String) {
@@ -43,13 +47,13 @@ object AlertSound {
             return
         }
         val done = CountDownLatch(1)
-        if (start(context, kind) { done.countDown() }) {
+        if (start(context, Prefs(context).sound(kind).rawRes) { done.countDown() }) {
             done.await(MAX_PLAY_MS, TimeUnit.MILLISECONDS)
         }
     }
 
     @Synchronized
-    private fun start(context: Context, kind: String, onDone: (() -> Unit)?): Boolean {
+    private fun start(context: Context, @RawRes sound: Int, onDone: (() -> Unit)?): Boolean {
         // A newer alert replaces the one still sounding (the all-clear cuts the siren short).
         player?.release()
         player = null
@@ -63,9 +67,9 @@ object AlertSound {
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
-        val created = MediaPlayer.create(context.applicationContext, soundFor(kind), attributes, audio.generateAudioSessionId())
+        val created = MediaPlayer.create(context.applicationContext, sound, attributes, audio.generateAudioSessionId())
         if (created == null) {
-            Log.w(TAG, "Could not load the $kind sound")
+            Log.w(TAG, "Could not load sound $sound")
             return false
         }
         created.setOnCompletionListener { finished ->

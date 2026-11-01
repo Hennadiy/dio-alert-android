@@ -259,10 +259,24 @@ class MainActivity : AppCompatActivity() {
         val volumeSlider = findViewById<Slider>(R.id.volumeSlider)
         val volumeLabel = findViewById<TextView>(R.id.volumeLabel)
 
+        val soundChoices = findViewById<LinearLayout>(R.id.soundChoices)
+        val soundButtons = AlertSounds.KINDS.associateWith { kind ->
+            MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                gravity = android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
+                setIconResource(R.drawable.ic_expand_more)
+                iconGravity = MaterialButton.ICON_GRAVITY_END
+                setOnClickListener { pickSound(kind) { updateSoundButton(this, kind) } }
+                updateSoundButton(this, kind)
+                soundChoices.addView(this)
+            }
+        }
+
         fun showVolume() {
             volumeLabel.text = getString(R.string.sound_volume_value, volumeSlider.value.toInt())
             volumeSlider.isEnabled = soundSwitch.isChecked
             volumeLabel.isEnabled = soundSwitch.isChecked
+            soundButtons.values.forEach { it.isEnabled = soundSwitch.isChecked }
         }
 
         soundSwitch.isChecked = prefs.soundEnabled
@@ -293,6 +307,37 @@ class MainActivity : AppCompatActivity() {
             AlertVibration.vibrate(this, "missiles")
             if (prefs.soundEnabled) AlertSound.preview(this, "missiles")
         }
+    }
+
+    private fun kindName(kind: String): String = getString(
+        when (kind) {
+            "drones" -> R.string.channel_drones
+            "end" -> R.string.channel_end
+            else -> R.string.channel_missiles
+        }
+    )
+
+    private fun updateSoundButton(button: MaterialButton, kind: String) {
+        button.text = getString(R.string.sound_for_kind, kindName(kind), getString(prefs.sound(kind).nameRes))
+    }
+
+    /** Lists the sounds for one alert kind; tapping one plays it, OK keeps it. */
+    private fun pickSound(kind: String, onPicked: () -> Unit) {
+        val sounds = AlertSounds.entries
+        var chosen = prefs.sound(kind)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.sound_pick_title, kindName(kind)))
+            .setSingleChoiceItems(sounds.map { getString(it.nameRes) }.toTypedArray(), sounds.indexOf(chosen)) { _, which ->
+                chosen = sounds[which]
+                AlertSound.preview(this, chosen)
+            }
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                prefs.setSound(kind, chosen)
+                onPicked()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .setOnDismissListener { AlertSound.stop() }
+            .show()
     }
 
     private fun updateRegion() {

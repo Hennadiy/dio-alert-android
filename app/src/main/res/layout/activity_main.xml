@@ -128,6 +128,13 @@
                         android:valueFrom="0"
                         android:valueTo="100" />
 
+                    <!-- One "kind: sound" row per alert kind, filled in by MainActivity. -->
+                    <LinearLayout
+                        android:id="@+id/soundChoices"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/vibrationSwitch"
                         android:layout_width="match_parent"

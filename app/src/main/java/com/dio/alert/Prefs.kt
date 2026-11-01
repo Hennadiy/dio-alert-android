@@ -58,6 +58,14 @@ class Prefs(context: Context) {
         get() = prefs.getFloat(KEY_SOUND_VOLUME, 1f)
         set(value) = prefs.edit().putFloat(KEY_SOUND_VOLUME, value.coerceIn(0f, 1f)).apply()
 
+    /** The sound picked for an alert kind ("drones", "missiles", "end"); its default until picked. */
+    fun sound(kind: String): AlertSounds =
+        AlertSounds.byId(prefs.getString(KEY_SOUND_PREFIX + kind, null)) ?: AlertSounds.defaultFor(kind)
+
+    fun setSound(kind: String, sound: AlertSounds) {
+        prefs.edit().putString(KEY_SOUND_PREFIX + kind, sound.id).apply()
+    }
+
     /** The alert vibration, on by default. */
     var vibrationEnabled: Boolean
         get() = prefs.getBoolean(KEY_VIBRATION, true)
@@ -83,6 +91,7 @@ class Prefs(context: Context) {
         private const val KEY_SOUND = "sound_enabled"
         private const val KEY_SOUND_VOLUME = "sound_volume"
         private const val KEY_VIBRATION = "vibration_enabled"
+        private const val KEY_SOUND_PREFIX = "sound_for_"
         private const val KEY_DELIVERED_AT = "delivered_at"
         private const val KEY_DELIVERY_DELAY = "delivery_delay"
         private const val KEY_DELIVERY_SCREEN_OFF = "delivery_screen_off"
