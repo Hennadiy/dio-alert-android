@@ -8,12 +8,12 @@ Android app that shows **air raid alerts for the region the user picks** (any ob
 | Missiles (and alerts of unknown type) | 3 medium ×5 | 3 rising sirens ×5 |
 | All clear | 1 long ×2 | 1 calm chime ×2 |
 
-Web push can't do this: a website can't choose a notification's vibration or sound. Android takes both from the notification **channel**, so the app has one channel per kind (`AlertNotifier.kt`). Sounds use alarm audio, so they play at alarm volume even with the ringer on silent.
+Web push can't do this: a website can't choose a notification's vibration or sound. The app plays both itself (`AlertSound`, `AlertVibration`) as an alarm, so they play at alarm volume even with the ringer on silent.
 
 ## How it works
 
 - **Region:** the status card has a region picker (the list comes from `api/AirAlert/GetRegions`; default Kyiv city, uid 31). The phone registers with its `regionUid`; changing it re-registers, and the status is `GetStatus?regionUid=`.
-- Mind's server polls alerts.in.ua and, on a change in a region, sends a high-priority **data-only FCM message** `{kind, region, regionEn, minutes?, test}` to the phones that follow it (`AirAlertNotifier` / `FcmService` in the service). Android wakes the app for it even when it is closed: `AlertMessagingService` shows the notification on the kind's channel (`alert_drones_v3` / `alert_missiles_v3` / `alert_end_v3`, which carry the vibration and no sound) and `AlertSound` plays the kind's sound itself on the alarm stream (alarm volume, heard on silent), waiting until it ends. Channel sounds were silent on some phones (Motorola), which is why the app plays it.
+- Mind's server polls alerts.in.ua and, on a change in a region, sends a high-priority **data-only FCM message** `{kind, region, regionEn, minutes?, test}` to the phones that follow it (`AirAlertNotifier` / `FcmService` in the service). Android wakes the app for it even when it is closed: `AlertMessagingService` shows the notification on the kind's channel (`alert_drones_v4` / `alert_missiles_v4` / `alert_end_v4`, silent and without vibration), `AlertVibration` vibrates the kind's pattern as an alarm, and `AlertSound` plays the kind's sound itself on the alarm stream (alarm volume, heard on silent), waiting until it ends. The **Alert sound and vibration** card switches each off (both on by default) and sets the sound's loudness within the alarm volume (`MediaPlayer.setVolume`); **Try a missile alert** previews them. Channel sounds were silent on some phones (Motorola), which is why the app plays it.
 - The texts are the app's strings (`alert_<kind>_title` with the region, Ukrainian `%1$s` / English `%2$s`; `alert_<kind>_body`, `alert_end_duration_*`, `alert_test_body`), in the app's language.
 - Nothing about the display is in the message, so channel ids and string names are the app's own business.
 - **Sign in** and **Create a Mind account** are the app's own forms. Instead of the web checkbox they use **reCAPTCHA Enterprise** for Android (`AppCaptcha.kt`, invisible: the SDK scores the request and Mind's server checks the score). Sign-in posts `api/User/AppSignIn`, and the server answers with a new **device key** for this phone; the app keeps only that key (header `X-Device-Key`). Registration posts `api/User/AppRegister`; an admin approves new accounts. **Forgot password?** opens Mind's page. **Sign out** unregisters the phone and revokes that key.
@@ -31,8 +31,8 @@ English (`values/`, the default) and Ukrainian (`values-uk/`): a phone set to Uk
 ## Changing sounds or vibration
 
 - Sounds: edit and run `python tools/make_sounds.py` (needs numpy); it writes `app/src/main/res/raw/*.wav`. Any short wav/ogg/mp3 works there.
-- Vibration: `pulses(...)` in `AlertNotifier.kt`.
-- Android fixes a channel's vibration when it is first created, so after a change **bump the channel ids** (`alert_drones_v3` → `_v4`) and add the old ids to `OBSOLETE_CHANNELS`. The sound is not in the channel: change the wav and it plays from the next build.
+- Vibration: `pulses(...)` in `AlertVibration.kt`.
+- Vibration patterns are in `AlertVibration.kt`, sounds in `res/raw`; neither is part of the channel, so changes take effect with the next build. If channel settings ever change, bump the ids (`_v4` → `_v5`) and add the old ones to `OBSOLETE_CHANNELS`.
 
 ## Build
 

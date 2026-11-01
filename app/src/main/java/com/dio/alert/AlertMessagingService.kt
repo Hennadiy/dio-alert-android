@@ -23,6 +23,7 @@ class AlertMessagingService : FirebaseMessagingService() {
         }
         val region = message.data["region"]?.let { Region(0, it, message.data["regionEn"] ?: it) } ?: Prefs(this).region
         AlertNotifier.show(this, kind, region, message.data["minutes"]?.toIntOrNull(), message.data["test"] == "1")
+        AlertVibration.vibrate(this, kind)
         AlertSound.playAndWait(this, kind)
     }
 

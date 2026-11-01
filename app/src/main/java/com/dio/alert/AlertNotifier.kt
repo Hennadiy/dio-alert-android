@@ -17,12 +17,12 @@ import androidx.core.content.ContextCompat
 
 /**
  * Shows air alert notifications. Alerts arrive as data-only FCM messages (AlertMessagingService),
- * so the app always builds the notification itself. Android takes a notification's vibration from
- * its channel, so every alert kind has a channel of its own; the sound is played by AlertSound on
- * the alarm stream, because channel sounds were silent on some phones.
+ * so the app always builds the notification itself, one channel per alert kind (so each can be
+ * set apart, e.g. to override Do Not Disturb). The channels are silent and still: AlertSound and
+ * AlertVibration play the sound and vibration, which the app's switches control.
  *
- * A channel's settings are fixed once it is created on the phone. To change the vibration, bump
- * the channel id (…_v4) and add the old one to OBSOLETE_CHANNELS.
+ * A channel's settings are fixed once it is created on the phone. To change them, bump the
+ * channel ids (…_v5) and add the old ones to OBSOLETE_CHANNELS.
  */
 object AlertNotifier {
     // FCM displays with this tag and id 0; using the same means any alert, shown by FCM or
@@ -30,24 +30,19 @@ object AlertNotifier {
     private const val NOTIFICATION_TAG = "air-alert"
     private const val NOTIFICATION_ID = 0
 
-    private enum class Channel(
-        val id: String,
-        @StringRes val nameRes: Int,
-        val vibration: LongArray
-    ) {
-        // 2 short pulses, 3 times.
-        DRONES("alert_drones_v3", R.string.channel_drones, pulses(2, 150, 100, 3, 600)),
-        // 3 medium pulses, 5 times.
-        MISSILES("alert_missiles_v3", R.string.channel_missiles, pulses(3, 400, 150, 5, 600)),
-        // 1 long pulse, 2 times.
-        END("alert_end_v3", R.string.channel_end, pulses(1, 1500, 0, 2, 600))
+    private enum class Channel(val id: String, @StringRes val nameRes: Int) {
+        DRONES("alert_drones_v4", R.string.channel_drones),
+        MISSILES("alert_missiles_v4", R.string.channel_missiles),
+        END("alert_end_v4", R.string.channel_end)
     }
 
     // v1 pointed at its sounds by numeric resource id (silent after updates); v2 played the sound
-    // through the channel (silent on some phones). Removed on start.
+    // through the channel (silent on some phones); v3 vibrated through the channel, which the
+    // app's vibration switch couldn't turn off. Removed on start.
     private val OBSOLETE_CHANNELS = listOf(
         "alert_drones_v1", "alert_missiles_v1", "alert_end_v1",
-        "alert_drones_v2", "alert_missiles_v2", "alert_end_v2"
+        "alert_drones_v2", "alert_missiles_v2", "alert_end_v2",
+        "alert_drones_v3", "alert_missiles_v3", "alert_end_v3"
     )
 
     /** Names of the alert kinds whose channel the user switched off (their alerts don't show or vibrate). */
@@ -85,10 +80,10 @@ object AlertNotifier {
         Channel.entries.forEach { channel ->
             manager.createNotificationChannel(
                 NotificationChannel(channel.id, context.getString(channel.nameRes), NotificationManager.IMPORTANCE_HIGH).apply {
-                    // No channel sound: AlertSound plays it, so it isn't heard twice.
+                    // Neither sound nor vibration: AlertSound and AlertVibration do both, so the
+                    // app's switches control them and nothing plays twice.
                     setSound(null, null)
-                    enableVibration(true)
-                    vibrationPattern = channel.vibration
+                    enableVibration(false)
                     enableLights(true)
                     lightColor = Color.RED
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -146,17 +141,4 @@ object AlertNotifier {
     private fun formatDuration(context: Context, minutes: Int): String =
         if (minutes >= 60) context.getString(R.string.alert_end_duration_hours, (minutes / 60).toString(), (minutes % 60).toString())
         else context.getString(R.string.alert_end_duration_minutes, minutes.toString())
-
-    /** Vibration pattern (ms: wait, vibrate, pause, vibrate, …) of [repeats] groups of [count] pulses. */
-    private fun pulses(count: Int, pulseMs: Long, gapMs: Long, repeats: Int, groupGapMs: Long): LongArray {
-        val pattern = mutableListOf(0L)
-        repeat(repeats) { group ->
-            if (group > 0) pattern += groupGapMs
-            repeat(count) { pulse ->
-                if (pulse > 0) pattern += gapMs
-                pattern += pulseMs
-            }
-        }
-        return pattern.toLongArray()
-    }
 }

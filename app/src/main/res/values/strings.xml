@@ -73,6 +73,12 @@
     <string name="step_lock_recents">Lock Dio Alert in recent apps (⋮ or long-press its card → Lock), so the system doesn’t close it.</string>
     <string name="step_autostart">Turn on “Autostart” for Dio Alert in its app settings, so it can wake up for an alert.</string>
     <string name="step_never_sleeping">Add Dio Alert to “Never sleeping apps” (Battery → Background usage limits).</string>
+    <string name="alert_settings_title">Alert sound and vibration</string>
+    <string name="sound_switch">Sound</string>
+    <string name="sound_volume">Sound volume</string>
+    <string name="sound_volume_value">Sound volume: %1$d%% of the alarm volume</string>
+    <string name="vibration_switch">Vibration</string>
+    <string name="try_alert">Try a missile alert</string>
     <string name="setup_title">Check your phone</string>
     <string name="setup_hint">These settings can stop alerts from arriving on time or sounding. This card disappears once they are fixed.</string>
     <string name="issue_notifications">Notifications are off for Dio Alert: alerts won’t show.</string>

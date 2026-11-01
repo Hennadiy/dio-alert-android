@@ -33,7 +33,15 @@ object AlertSound {
      * Plays the sound and waits for it to end (at most [MAX_PLAY_MS]). For FCM's background
      * thread: the app may be closed again as soon as the message handler returns.
      */
+    /** Plays the sound without waiting, ignoring the switch (the settings card's "Try"). */
+    fun preview(context: Context, kind: String) {
+        start(context, kind, null)
+    }
+
     fun playAndWait(context: Context, kind: String) {
+        if (!Prefs(context).soundEnabled) {
+            return
+        }
         val done = CountDownLatch(1)
         if (start(context, kind) { done.countDown() }) {
             done.await(MAX_PLAY_MS, TimeUnit.MILLISECONDS)
@@ -67,6 +75,9 @@ object AlertSound {
             finished.release()
             onDone?.invoke()
         }
+        // Within the alarm volume: the app's slider can make it quieter, never louder.
+        val volume = Prefs(context).soundVolume
+        created.setVolume(volume, volume)
         player = created
         created.start()
         return true

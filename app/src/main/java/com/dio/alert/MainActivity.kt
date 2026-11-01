@@ -26,6 +26,8 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var regionCard: View
     private lateinit var setupCard: View
+    private lateinit var alertSettingsCard: View
     private lateinit var regionButton: MaterialButton
     private lateinit var statusText: TextView
     private lateinit var deliveryText: TextView
@@ -75,6 +78,8 @@ class MainActivity : AppCompatActivity() {
 
         regionCard = findViewById(R.id.regionCard)
         setupCard = findViewById(R.id.setupCard)
+        alertSettingsCard = findViewById(R.id.alertSettingsCard)
+        setUpAlertSettings()
         regionButton = findViewById(R.id.regionButton)
         statusText = findViewById(R.id.statusText)
         deliveryText = findViewById(R.id.deliveryText)
@@ -242,6 +247,49 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Sound and vibration switches (on by default) and the sound's loudness within the alarm volume. */
+    private fun setUpAlertSettings() {
+        val soundSwitch = findViewById<MaterialSwitch>(R.id.soundSwitch)
+        val vibrationSwitch = findViewById<MaterialSwitch>(R.id.vibrationSwitch)
+        val volumeSlider = findViewById<Slider>(R.id.volumeSlider)
+        val volumeLabel = findViewById<TextView>(R.id.volumeLabel)
+
+        fun showVolume() {
+            volumeLabel.text = getString(R.string.sound_volume_value, volumeSlider.value.toInt())
+            volumeSlider.isEnabled = soundSwitch.isChecked
+            volumeLabel.isEnabled = soundSwitch.isChecked
+        }
+
+        soundSwitch.isChecked = prefs.soundEnabled
+        vibrationSwitch.isChecked = prefs.vibrationEnabled
+        volumeSlider.value = (prefs.soundVolume * 100).toInt().coerceIn(0, 100) / 10 * 10f
+        showVolume()
+
+        soundSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.soundEnabled = checked
+            showVolume()
+            updateSetup()
+        }
+        vibrationSwitch.setOnCheckedChangeListener { _, checked -> prefs.vibrationEnabled = checked }
+        volumeSlider.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                prefs.soundVolume = value / 100f
+                showVolume()
+            }
+        }
+        // Hear it at the new loudness when the thumb is let go.
+        volumeSlider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+            override fun onStopTrackingTouch(slider: Slider) {
+                if (soundSwitch.isChecked) AlertSound.preview(this@MainActivity, "drones")
+            }
+        })
+        findViewById<MaterialButton>(R.id.tryAlertButton).setOnClickListener {
+            AlertVibration.vibrate(this, "missiles")
+            if (prefs.soundEnabled) AlertSound.preview(this, "missiles")
+        }
+    }
+
     private fun updateRegion() {
         regionButton.text = prefs.region.displayName(this)
     }
@@ -367,6 +415,7 @@ class MainActivity : AppCompatActivity() {
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
         // Signed out, the phone gets no alerts: only signing in is offered.
         regionCard.visibility = if (connected) View.VISIBLE else View.GONE
+        alertSettingsCard.visibility = if (connected) View.VISIBLE else View.GONE
         updateSetup()
     }
 
@@ -443,7 +492,7 @@ class MainActivity : AppCompatActivity() {
 
         // The sound plays on the alarm stream: at zero alarm volume alerts are silent.
         val audio = getSystemService(AudioManager::class.java)
-        if (audio.getStreamVolume(AudioManager.STREAM_ALARM) == 0) {
+        if (prefs.soundEnabled && audio.getStreamVolume(AudioManager.STREAM_ALARM) == 0) {
             issues += SetupIssue(getString(R.string.issue_alarm_volume), R.string.turn_up_alarm_volume) {
                 val max = audio.getStreamMaxVolume(AudioManager.STREAM_ALARM)
                 audio.setStreamVolume(AudioManager.STREAM_ALARM, maxOf(1, max * 7 / 10), AudioManager.FLAG_SHOW_UI)

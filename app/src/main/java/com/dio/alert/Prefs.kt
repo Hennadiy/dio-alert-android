@@ -48,6 +48,21 @@ class Prefs(context: Context) {
             edit.apply()
         }
 
+    /** The alert sound, on by default. */
+    var soundEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SOUND, true)
+        set(value) = prefs.edit().putBoolean(KEY_SOUND, value).apply()
+
+    /** The alert sound's loudness within the alarm volume, 0..1 (1 = the alarm volume). */
+    var soundVolume: Float
+        get() = prefs.getFloat(KEY_SOUND_VOLUME, 1f)
+        set(value) = prefs.edit().putFloat(KEY_SOUND_VOLUME, value.coerceIn(0f, 1f)).apply()
+
+    /** The alert vibration, on by default. */
+    var vibrationEnabled: Boolean
+        get() = prefs.getBoolean(KEY_VIBRATION, true)
+        set(value) = prefs.edit().putBoolean(KEY_VIBRATION, value).apply()
+
     val isConnected: Boolean
         get() = !deviceKey.isNullOrEmpty()
 
@@ -65,6 +80,9 @@ class Prefs(context: Context) {
         private const val KEY_TOKEN = "fcm_token"
         private const val KEY_EMAIL = "user_email"
         private const val KEY_REGION = "region"
+        private const val KEY_SOUND = "sound_enabled"
+        private const val KEY_SOUND_VOLUME = "sound_volume"
+        private const val KEY_VIBRATION = "vibration_enabled"
         private const val KEY_DELIVERED_AT = "delivered_at"
         private const val KEY_DELIVERY_DELAY = "delivery_delay"
         private const val KEY_DELIVERY_SCREEN_OFF = "delivery_screen_off"

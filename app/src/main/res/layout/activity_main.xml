@@ -94,6 +94,58 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- How alerts sound and vibrate (signed in only) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/alertSettingsCard"
+            style="@style/Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout style="@style/CardBody">
+
+                <TextView
+                    style="@style/SectionTitle"
+                    android:text="@string/alert_settings_title" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/soundSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sound_switch" />
+
+                <TextView
+                    android:id="@+id/volumeLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/sound_volume"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/volumeSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/sound_volume"
+                    android:stepSize="10"
+                    android:valueFrom="0"
+                    android:valueTo="100" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/vibrationSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/vibration_switch" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tryAlertButton"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/try_alert" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Connection to Mind -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Card"
