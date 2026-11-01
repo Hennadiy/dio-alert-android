@@ -500,14 +500,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // "Override Do Not Disturb" per alert kind: without it Do Not Disturb hides the alert and
-        // stops its vibration. One channel at a time: the card shows the next one on return.
+        // "Override Do Not Disturb" per alert kind: without it Do Not Disturb hides that kind's
+        // notification. One entry per kind, each opening its own channel's settings.
         if (hasNotificationPermission() && NotificationManagerCompat.from(this).areNotificationsEnabled()) {
-            val notOverriding = AlertNotifier.channelsNotOverridingDnd(this)
-            if (notOverriding.isNotEmpty()) {
-                val names = notOverriding.joinToString(", ") { it.second }
-                issues += SetupIssue(getString(R.string.issue_dnd_override, names), R.string.dnd_override_button) {
-                    openChannelSettings(notOverriding.first().first)
+            AlertNotifier.channelsNotOverridingDnd(this).forEach { (channelId, name) ->
+                issues += SetupIssue(getString(R.string.issue_dnd_override, name), R.string.dnd_override_button) {
+                    openChannelSettings(channelId)
                 }
             }
         }
