@@ -21,14 +21,15 @@
     <string name="region_pick_title">Тривоги для якого регіону?</string>
     <string name="region_changed">Тепер тривоги приходять для: %1$s</string>
     <string name="regions_unavailable">Не вдалося завантажити регіони. Перевірте з’єднання й спробуйте ще раз.</string>
-    <string name="status_unknown">Стан невідомий</string>
-    <string name="status_calm">Тривоги немає</string>
-    <string name="status_general">Повітряна тривога</string>
-    <string name="status_drones">Тривога: дрони</string>
-    <string name="status_missiles">Тривога: ракети</string>
+    <string name="status_unknown">❔ Стан невідомий</string>
+    <string name="status_calm">✅ Тривоги немає</string>
+    <string name="status_general">🚨 Повітряна тривога</string>
+    <string name="status_drones">🛩️ Тривога: дрони</string>
+    <string name="status_since">%1$s · з %2$s</string>
+    <string name="status_missiles">🚀 Тривога: ракети</string>
 
     <string name="connection_title">Підключення до Mind</string>
-    <string name="connection_on">Підключено: тривоги приходитимуть на цей телефон</string>
+    <string name="also_other_devices">Тривоги також надходять на: %1$s</string>
     <string name="connection_off">Вхід не виконано</string>
     <string name="signed_in_as">Ви увійшли як</string>
     <string name="sign_in">Увійти</string>
@@ -54,9 +55,6 @@
     <string name="connected">Підключено</string>
     <string name="key_revoked">Вас від’єднано в Mind. Увійдіть знову, щоб отримувати тривоги.</string>
 
-    <string name="last_delivery">Остання тривога прийшла %1$s, через %2$s після надсилання з Mind.</string>
-    <string name="delay_seconds">%1$d с</string>
-    <string name="delay_minutes">%1$d хв</string>
     <string name="issue_standby">Android вважає Dio Alert рідко використовуваним і затримує його тривоги. Вимкніть для нього оптимізацію батареї й інколи відкривайте застосунок.</string>
     <string name="battery_hint_oneplus">Кнопка відкриє налаштування Dio Alert. Відкрийте «Використання батареї» й увімкніть «Дозволити фонову активність»; також у Батарея → Оптимізація батареї виберіть для Dio Alert «Не оптимізувати», а в недавніх застосунках закріпіть Dio Alert.</string>
     <string name="maker_steps_hint">У вашого телефона є власні налаштування батареї, які застосунки не можуть прочитати. Кроки нижче зникнуть, щойно тривога прийде вчасно при вимкненому екрані: після змін заблокуйте телефон і надішліть тест із профілю в Mind.</string>

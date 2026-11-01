@@ -39,6 +39,14 @@ object ApiClient {
         )
     }
 
+    /** Names of the account's other phones that get alerts too. */
+    fun otherDevices(deviceKey: String): List<String> {
+        val json = JSONArray(request("GET", BuildConfig.API_BASE_URL + "AirAlert/GetDevicesForApp", headers = mapOf("X-Device-Key" to deviceKey)))
+        return (0 until json.length()).map { json.getJSONObject(it) }
+            .filterNot { it.optBoolean("isThisDevice") }
+            .map { it.optString("name").ifBlank { "?" } }
+    }
+
     /** [revokeKey] also deletes the device key on the server (for keys the app created on sign-in). */
     fun unregisterDevice(deviceKey: String, fcmToken: String?, revokeKey: Boolean) {
         postJson("AirAlert/UnregisterDevice", deviceKey, JSONObject().put("fcmToken", fcmToken ?: "").put("revokeKey", revokeKey))

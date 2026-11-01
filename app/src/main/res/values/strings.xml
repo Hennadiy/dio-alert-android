@@ -24,14 +24,15 @@
     <string name="region_pick_title">Alerts for which region?</string>
     <string name="region_changed">Alerts now come for: %1$s</string>
     <string name="regions_unavailable">Could not load the regions. Check the connection and try again.</string>
-    <string name="status_unknown">Status unknown</string>
-    <string name="status_calm">No alert</string>
-    <string name="status_general">Air raid alert</string>
-    <string name="status_drones">Drone alert</string>
-    <string name="status_missiles">Missile alert</string>
+    <string name="status_unknown">❔ Status unknown</string>
+    <string name="status_calm">✅ No alert</string>
+    <string name="status_general">🚨 Air raid alert</string>
+    <string name="status_drones">🛩️ Drone alert</string>
+    <string name="status_since">%1$s · since %2$s</string>
+    <string name="status_missiles">🚀 Missile alert</string>
 
     <string name="connection_title">Connection to Mind</string>
-    <string name="connection_on">Connected: alerts will arrive on this phone</string>
+    <string name="also_other_devices">Alerts also go to: %1$s</string>
     <string name="connection_off">Not signed in</string>
     <string name="signed_in_as">Signed in as</string>
     <string name="sign_in">Sign in</string>
@@ -57,9 +58,6 @@
     <string name="connected">Connected</string>
     <string name="key_revoked">You were signed out in Mind. Sign in again to get alerts.</string>
 
-    <string name="last_delivery">Last alert arrived %1$s, %2$s after Mind sent it.</string>
-    <string name="delay_seconds">%1$d s</string>
-    <string name="delay_minutes">%1$d min</string>
     <string name="issue_standby">Android rates Dio Alert as rarely used and delays its alerts. Turn off battery optimisation for it and open the app now and then.</string>
     <string name="battery_hint_oneplus">The button opens Dio Alert’s settings. Open “Battery usage” and turn on “Allow background activity”; also set Battery → Battery optimisation → Dio Alert to “Don’t optimise”, and in recent apps lock Dio Alert.</string>
     <string name="maker_steps_hint">Your phone has its own battery settings that apps can’t read. The steps below disappear once an alert arrives on time with the screen off: after changing them, lock the phone and send a test from your Mind profile.</string>

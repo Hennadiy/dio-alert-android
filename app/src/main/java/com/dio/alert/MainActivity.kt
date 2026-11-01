@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var alertSettingsCard: View
     private lateinit var regionButton: MaterialButton
     private lateinit var statusText: TextView
-    private lateinit var deliveryText: TextView
     private lateinit var connectionText: TextView
     private lateinit var accountChip: View
     private lateinit var accountInitial: TextView
@@ -86,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         setUpAlertSettings()
         regionButton = findViewById(R.id.regionButton)
         statusText = findViewById(R.id.statusText)
-        deliveryText = findViewById(R.id.deliveryText)
         connectionText = findViewById(R.id.connectionText)
         accountChip = findViewById(R.id.accountChip)
         accountInitial = findViewById(R.id.accountInitial)
@@ -356,25 +354,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** "The last alert arrived at 14:05, 3 s after Mind sent it"; red when it took over a minute. */
-    private fun updateDelivery() {
-        val (at, delayMs) = prefs.lastDelivery ?: run {
-            deliveryText.visibility = View.GONE
-            return
-        }
-        val time = DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(at))
-        val seconds = delayMs / 1000
-        val delay = if (seconds < 60) getString(R.string.delay_seconds, seconds) else getString(R.string.delay_minutes, seconds / 60)
-        deliveryText.text = getString(R.string.last_delivery, time, delay)
-        deliveryText.setTextColor(
-            if (seconds >= LATE_DELIVERY_SECONDS) ContextCompat.getColor(this, R.color.danger)
-            else statusText.currentTextColor
-        )
-        deliveryText.visibility = View.VISIBLE
-    }
-
     private fun loadStatus() {
-        updateDelivery()
         val regionUid = prefs.region.uid
         lifecycleScope.launch {
             val status = try {
@@ -396,9 +376,32 @@ class MainActivity : AppCompatActivity() {
             status.kind == "missiles" -> Triple(R.string.status_missiles, R.color.status_missiles_bg, R.color.status_missiles_fg)
             else -> Triple(R.string.status_general, R.color.status_general_bg, R.color.status_general_fg)
         }
-        statusText.setText(textRes)
+        // During an alert: when it started (when Mind saw it begin).
+        val since = status?.since?.takeIf { status.isActive == true }?.let { formatTime(it) }
+        statusText.text = if (since != null) getString(R.string.status_since, getString(textRes), since) else getString(textRes)
         statusText.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, bg))
         statusText.setTextColor(ContextCompat.getColor(this, fg))
+    }
+
+    private fun formatTime(iso: String): String? = runCatching {
+        DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault()).format(Instant.parse(iso))
+    }.getOrNull()
+
+    private fun loadOtherDevices() {
+        val key = prefs.deviceKey ?: return
+        lifecycleScope.launch {
+            val others = runCatching { withContext(Dispatchers.IO) { ApiClient.otherDevices(key) } }.getOrNull()
+            if (!prefs.isConnected || others.isNullOrEmpty()) return@launch
+            connectionText.text = getString(R.string.also_other_devices, others.joinToString(", "))
+            connectionText.setTextColor(statusLabelColor())
+            connectionText.visibility = View.VISIBLE
+        }
+    }
+
+    private fun statusLabelColor(): Int {
+        val value = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, value, true)
+        return value.data
     }
 
     private fun updateConnection() {
@@ -409,11 +412,15 @@ class MainActivity : AppCompatActivity() {
             accountEmail.text = email
             accountInitial.text = email.first().uppercase()
         }
-        connectionText.text = when {
-            connected -> getString(R.string.connection_on)
-            else -> getString(R.string.connection_off)
+        // Signed in, the line only speaks up when alerts also go to the account's other phones.
+        if (connected) {
+            connectionText.visibility = View.GONE
+            loadOtherDevices()
+        } else {
+            connectionText.visibility = View.VISIBLE
+            connectionText.text = getString(R.string.connection_off)
+            connectionText.setTextColor(ContextCompat.getColor(this, R.color.danger))
         }
-        connectionText.setTextColor(ContextCompat.getColor(this, if (connected) R.color.calm else R.color.danger))
         signInGroup.visibility = if (connected) View.GONE else View.VISIBLE
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
         // Signed out, the phone gets no alerts: only signing in is offered.
@@ -643,8 +650,6 @@ class MainActivity : AppCompatActivity() {
     private fun toast(resId: Int) = toast(getString(resId))
 
     private companion object {
-        /** A delivery this slow means the phone held the alert back. */
-        const val LATE_DELIVERY_SECONDS = 60L
         /** An alert this quick with the screen off proves the phone isn't holding alerts back. */
         const val ON_TIME_MS = 30_000L
     }
