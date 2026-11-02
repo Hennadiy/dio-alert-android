@@ -23,16 +23,23 @@ object AlertVibration {
         else -> pulses(3, 400, 150, 5, 600)
     }
 
+    /** Stops an alert's vibration (its notification was dismissed). */
+    fun cancel(context: Context) {
+        vibrator(context).cancel()
+    }
+
+    private fun vibrator(context: Context): Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        context.getSystemService(VibratorManager::class.java).defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Vibrator::class.java)
+    }
+
     fun vibrate(context: Context, kind: String) {
         if (!Prefs(context).vibrationEnabled) {
             return
         }
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            context.getSystemService(VibratorManager::class.java).defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            context.getSystemService(Vibrator::class.java)
-        }
+        val vibrator = vibrator(context)
         if (!vibrator.hasVibrator()) {
             return
         }

@@ -26,6 +26,15 @@
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/testButton"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/test_alerts"
+            android:tooltipText="@string/test_alerts"
+            app:icon="@drawable/ic_play_alert" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/notificationSettingsButton"
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"

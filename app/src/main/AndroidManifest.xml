@@ -47,6 +47,11 @@
                 android:value="true" />
         </service>
 
+        <!-- The alert notification was dismissed: stop its sound and vibration. -->
+        <receiver
+            android:name=".StopAlertReceiver"
+            android:exported="false" />
+
         <service
             android:name=".AlertMessagingService"
             android:exported="false">

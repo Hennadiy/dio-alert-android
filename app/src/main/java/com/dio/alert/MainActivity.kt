@@ -103,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         passwordInput = findViewById(R.id.passwordInput)
         issuesList = findViewById(R.id.issuesList)
         findViewById<MaterialButton>(R.id.appSettingsButton).setOnClickListener { openAppSettings() }
+        findViewById<MaterialButton>(R.id.testButton).setOnClickListener { showTestAlerts() }
         findViewById<MaterialButton>(R.id.notificationSettingsButton).setOnClickListener { openNotificationSettings() }
         findViewById<TextView>(R.id.versionText).text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
         findViewById<MaterialButton>(R.id.languageButton).setOnClickListener { pickLanguage() }
@@ -113,9 +114,25 @@ class MainActivity : AppCompatActivity() {
         forgotButton.setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.MIND_URL + "forgot-password"))) }
         disconnectButton.setOnClickListener { disconnect() }
 
+        stopIfFromAlert(intent)
+
         // Android 13+ shows nothing until the user allows notifications; ask as soon as alerts can arrive.
         if (prefs.isConnected && !hasNotificationPermission()) {
             requestNotifications()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        stopIfFromAlert(intent)
+    }
+
+    // Opening the app from the alert notification silences it, like dismissing it does.
+    private fun stopIfFromAlert(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_FROM_ALERT, false) == true) {
+            AlertSound.stop()
+            AlertVibration.cancel(this)
+            intent.removeExtra(EXTRA_FROM_ALERT)
         }
     }
 
@@ -337,6 +354,21 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .setOnDismissListener { AlertSound.stop() }
+            .show()
+    }
+
+    /** Plays a test alert of the chosen kind on this phone: the notification, vibration and sound a real one gets. */
+    private fun showTestAlerts() {
+        val kinds = listOf("missiles", "drones", "end")
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.test_alerts)
+            .setItems(kinds.map { kindName(it) }.toTypedArray()) { _, which ->
+                val kind = kinds[which]
+                AlertNotifier.show(this, kind, prefs.region, if (kind == "end") 42 else null, isTest = true)
+                AlertVibration.vibrate(this, kind)
+                AlertSound.play(this, kind)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -694,7 +726,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun toast(resId: Int) = toast(getString(resId))
 
-    private companion object {
+    companion object {
+        /** Set on the intent the alert notification opens: the sound and vibration stop. */
+        const val EXTRA_FROM_ALERT = "from_alert"
+
         /** An alert this quick with the screen off proves the phone isn't holding alerts back. */
         const val ON_TIME_MS = 30_000L
     }

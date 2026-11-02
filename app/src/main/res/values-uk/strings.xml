@@ -100,6 +100,7 @@
     <string name="issue_dnd_override">%1$s: у режимі «Не турбувати» ці тривоги не з’являться. Увімкніть для неї «Ігнорувати режим „Не турбувати“».</string>
     <string name="dnd_override_button">Ігнорувати «Не турбувати»</string>
     <string name="issue_dnd">Режим «Не турбувати» зараз глушить будильники, тож тривог не буде чути.</string>
+    <string name="test_alerts">Перевірка тривог</string>
     <string name="app_settings">Налаштування застосунку</string>
     <string name="allow_data">Дозволити фонові дані</string>
     <string name="turn_up_alarm_volume">Збільшити гучність будильника</string>

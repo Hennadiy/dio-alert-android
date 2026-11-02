@@ -58,9 +58,14 @@ class Prefs(context: Context) {
         get() = prefs.getFloat(KEY_SOUND_VOLUME, 1f)
         set(value) = prefs.edit().putFloat(KEY_SOUND_VOLUME, value.coerceIn(0f, 1f)).apply()
 
-    /** The sound picked for an alert kind ("drones", "missiles", "end"); its default until picked. */
-    fun sound(kind: String): AlertSounds =
-        AlertSounds.byId(prefs.getString(KEY_SOUND_PREFIX + kind, null)) ?: AlertSounds.defaultFor(kind)
+    /**
+     * The sound picked for an alert kind; its default until picked. A general alert (threat not
+     * named) has no row of its own: it sounds like a missile alert, the user's pick included.
+     */
+    fun sound(kind: String): AlertSounds {
+        val pickable = if (kind in AlertSounds.KINDS) kind else "missiles"
+        return AlertSounds.byId(prefs.getString(KEY_SOUND_PREFIX + pickable, null)) ?: AlertSounds.defaultFor(pickable)
+    }
 
     fun setSound(kind: String, sound: AlertSounds) {
         prefs.edit().putString(KEY_SOUND_PREFIX + kind, sound.id).apply()
