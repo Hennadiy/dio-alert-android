@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
@@ -302,11 +303,15 @@ class MainActivity : AppCompatActivity() {
         showVolume()
 
         soundSwitch.setOnCheckedChangeListener { _, checked ->
-            prefs.soundEnabled = checked
-            showVolume()
-            updateSetup()
+            confirmSwitchOff(soundSwitch, checked, R.string.sound_off_confirm) { on ->
+                prefs.soundEnabled = on
+                showVolume()
+                updateSetup()
+            }
         }
-        vibrationSwitch.setOnCheckedChangeListener { _, checked -> prefs.vibrationEnabled = checked }
+        vibrationSwitch.setOnCheckedChangeListener { _, checked ->
+            confirmSwitchOff(vibrationSwitch, checked, R.string.vibration_off_confirm) { on -> prefs.vibrationEnabled = on }
+        }
         volumeSlider.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 prefs.soundVolume = value / 100f
@@ -320,10 +325,32 @@ class MainActivity : AppCompatActivity() {
                 if (soundSwitch.isChecked) AlertSound.preview(this@MainActivity, "drones")
             }
         })
-        findViewById<MaterialButton>(R.id.tryAlertButton).setOnClickListener {
-            AlertVibration.vibrate(this, "missiles")
-            if (prefs.soundEnabled) AlertSound.preview(this, "missiles")
+    }
+
+    /**
+     * Turning sound or vibration off silences real alerts too, so it asks first; Cancel flips the
+     * switch back. Turning it on needs no question.
+     */
+    private fun confirmSwitchOff(switch: MaterialSwitch, checked: Boolean, @StringRes messageRes: Int, apply: (Boolean) -> Unit) {
+        if (checked) {
+            apply(true)
+            return
         }
+        var confirmed = false
+        MaterialAlertDialogBuilder(this)
+            .setMessage(messageRes)
+            .setPositiveButton(R.string.turn_off) { _, _ ->
+                confirmed = true
+                apply(false)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .setOnDismissListener {
+                if (!confirmed) {
+                    // Back on without asking again: the listener sees "checked" and just applies it.
+                    switch.isChecked = true
+                }
+            }
+            .show()
     }
 
     private fun kindName(kind: String): String = getString(

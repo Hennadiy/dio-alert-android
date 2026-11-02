@@ -92,7 +92,9 @@
     <string name="sound_wind_chimes">Wind chimes (soft)</string>
     <string name="sound_doorbell">Doorbell (soft)</string>
     <string name="vibration_switch">Vibration</string>
-    <string name="try_alert">Try a missile alert</string>
+    <string name="sound_off_confirm">Turn off the alert sound? Real alerts will make no sound, only vibrate and show a notification.</string>
+    <string name="vibration_off_confirm">Turn off the alert vibration? Real alerts will not vibrate.</string>
+    <string name="turn_off">Turn off</string>
     <string name="setup_title">Check your phone</string>
     <string name="setup_hint">These settings can stop alerts from arriving on time or sounding. This card disappears once they are fixed.</string>
     <string name="issue_notifications">Notifications are off for Dio Alert: alerts won’t show.</string>

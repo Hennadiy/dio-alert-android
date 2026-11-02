@@ -89,7 +89,9 @@
     <string name="sound_wind_chimes">Музика вітру (тиха)</string>
     <string name="sound_doorbell">Дверний дзвінок (тихий)</string>
     <string name="vibration_switch">Вібрація</string>
-    <string name="try_alert">Спробувати ракетну тривогу</string>
+    <string name="sound_off_confirm">Вимкнути звук тривог? Справжні тривоги не звучатимуть: лише вібрація й сповіщення.</string>
+    <string name="vibration_off_confirm">Вимкнути вібрацію тривог? Справжні тривоги не вібруватимуть.</string>
+    <string name="turn_off">Вимкнути</string>
     <string name="setup_title">Перевірте телефон</string>
     <string name="setup_hint">Ці налаштування можуть завадити тривогам прийти вчасно чи прозвучати. Картка зникне, щойно їх виправите.</string>
     <string name="issue_notifications">Сповіщення для Dio Alert вимкнено: тривоги не з’являтимуться.</string>
