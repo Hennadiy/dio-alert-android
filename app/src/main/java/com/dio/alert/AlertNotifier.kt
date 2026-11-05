@@ -115,15 +115,14 @@ object AlertNotifier {
             else -> context.getString(bodyRes)
         }
 
+        // Tapping it, even on the lock screen, silences it first and then opens the app.
         val open = PendingIntent.getActivity(
             context, 0,
-            Intent(context, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(MainActivity.EXTRA_FROM_ALERT, true),
+            Intent(context, AlertTapActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Swiping the alert away (or opening it) stops its sound and vibration.
+        // Swiping the alert away, or its Stop button, silences it.
         val stop = PendingIntent.getBroadcast(
             context, 0,
             Intent(context, StopAlertReceiver::class.java),
@@ -142,6 +141,7 @@ object AlertNotifier {
             .setAutoCancel(true)
             .setContentIntent(open)
             .setDeleteIntent(stop)
+            .addAction(0, context.getString(R.string.stop_sound), stop)
             .build()
 
         NotificationManagerCompat.from(context).notify(NOTIFICATION_TAG, NOTIFICATION_ID, notification)

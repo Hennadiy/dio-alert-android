@@ -115,30 +115,17 @@ class MainActivity : AppCompatActivity() {
         forgotButton.setOnClickListener { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.MIND_URL + "forgot-password"))) }
         disconnectButton.setOnClickListener { disconnect() }
 
-        stopIfFromAlert(intent)
-
         // Android 13+ shows nothing until the user allows notifications; ask as soon as alerts can arrive.
         if (prefs.isConnected && !hasNotificationPermission()) {
             requestNotifications()
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        stopIfFromAlert(intent)
-    }
-
-    // Opening the app from the alert notification silences it, like dismissing it does.
-    private fun stopIfFromAlert(intent: Intent?) {
-        if (intent?.getBooleanExtra(EXTRA_FROM_ALERT, false) == true) {
-            AlertSound.stop()
-            AlertVibration.cancel(this)
-            intent.removeExtra(EXTRA_FROM_ALERT)
-        }
-    }
-
     override fun onResume() {
         super.onResume()
+        // Opening the app while an alert sounds silences it: the user has seen it.
+        AlertSound.stop()
+        AlertVibration.cancel(this)
         updateRegion()
         updateConnection() // also refreshes the setup checks
         loadStatus()
@@ -754,9 +741,6 @@ class MainActivity : AppCompatActivity() {
     private fun toast(resId: Int) = toast(getString(resId))
 
     companion object {
-        /** Set on the intent the alert notification opens: the sound and vibration stop. */
-        const val EXTRA_FROM_ALERT = "from_alert"
-
         /** An alert this quick with the screen off proves the phone isn't holding alerts back. */
         const val ON_TIME_MS = 30_000L
     }

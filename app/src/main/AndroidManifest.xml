@@ -47,6 +47,16 @@
                 android:value="true" />
         </service>
 
+        <!-- Tapping the alert notification: silences it over the lock screen, then opens the app. -->
+        <activity
+            android:name=".AlertTapActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <!-- The alert notification was dismissed: stop its sound and vibration. -->
         <receiver
             android:name=".StopAlertReceiver"

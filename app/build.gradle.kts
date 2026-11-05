@@ -11,6 +11,14 @@ android {
     namespace = "com.dio.alert"
     compileSdk = 36
 
+    // Ship every language to every phone: Play otherwise installs only the system language's
+    // strings, and the in-app language switch then has nothing to switch to.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     defaultConfig {
         applicationId = "com.dio.alert"
         minSdk = 26
