@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationManager
 import android.app.usage.UsageStatsManager
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.pm.PackageManager
@@ -15,6 +16,9 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -45,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: Prefs
 
     private lateinit var regionCard: View
+    private lateinit var mapCard: View
+    private lateinit var alertMap: WebView
     private lateinit var setupCard: View
     private lateinit var alertSettingsCard: View
     private lateinit var regionButton: MaterialButton
@@ -81,6 +87,9 @@ class MainActivity : AppCompatActivity() {
         prefs = Prefs(this)
 
         regionCard = findViewById(R.id.regionCard)
+        mapCard = findViewById(R.id.mapCard)
+        alertMap = findViewById(R.id.alertMap)
+        setUpAlertMap()
         setupCard = findViewById(R.id.setupCard)
         alertSettingsCard = findViewById(R.id.alertSettingsCard)
         setUpAlertSettings()
@@ -123,6 +132,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        alertMap.onResume()
         // Opening the app while an alert sounds silences it: the user has seen it.
         AlertSound.stop()
         AlertVibration.cancel(this)
@@ -386,6 +396,42 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * The official alert map (map.ukrainealarm.com) in the map card. It keeps itself up to date;
+     * links that leave the map open in the browser. Dragging the map moves the map, not the page.
+     */
+    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
+    private fun setUpAlertMap() {
+        alertMap.settings.javaScriptEnabled = true
+        alertMap.settings.domStorageEnabled = true
+        alertMap.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                if (request.url.host == Uri.parse(ALERT_MAP_URL).host) return false
+                runCatching { startActivity(Intent(Intent.ACTION_VIEW, request.url)) }
+                return true
+            }
+
+            override fun onPageFinished(view: WebView, url: String) {
+                view.evaluateJavascript(MAP_ONLY_JS, null)
+            }
+        }
+        alertMap.setOnTouchListener { view, _ ->
+            view.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+        alertMap.loadUrl(ALERT_MAP_URL)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        alertMap.onPause()
+    }
+
+    override fun onDestroy() {
+        alertMap.destroy()
+        super.onDestroy()
+    }
+
     private fun updateRegion() {
         regionButton.text = prefs.region.displayName(this)
     }
@@ -516,6 +562,7 @@ class MainActivity : AppCompatActivity() {
         disconnectButton.visibility = if (connected) View.VISIBLE else View.GONE
         // Signed out, the phone gets no alerts: only signing in is offered.
         regionCard.visibility = if (connected) View.VISIBLE else View.GONE
+        mapCard.visibility = if (connected) View.VISIBLE else View.GONE
         alertSettingsCard.visibility = if (connected) View.VISIBLE else View.GONE
         updateSetup()
     }
@@ -741,6 +788,35 @@ class MainActivity : AppCompatActivity() {
     private fun toast(resId: Int) = toast(getString(resId))
 
     companion object {
+        /** The official air raid alert map of Ukraine, shown in the map card. */
+        const val ALERT_MAP_URL = "https://map.ukrainealarm.com/"
+
+        /**
+         * Leaves only the map on the page: accepts its intro panel and hides the header, notices,
+         * buttons, promo banner and scale. The class names are the site's own (checked 2026-11-06);
+         * if the site renames them, those parts simply show again.
+         */
+        private const val MAP_ONLY_JS = """
+            (function () {
+                try {
+                    localStorage.setItem('detailMapOnboardingAccepted:v2:main', 'true');
+                    localStorage.setItem('detailMapZoomHintSeen:v1:main', 'true');
+                } catch (e) {}
+                var accept = document.querySelector('.detailMapOnboarding__accept');
+                if (accept) accept.click();
+                if (!document.getElementById('dio-map-only')) {
+                    var style = document.createElement('style');
+                    style.id = 'dio-map-only';
+                    style.textContent =
+                        '.header, .publicTargetNotices, .mainMapControls, .bottom-banner, .detailMapOnboarding, .mapZoomHint,' +
+                        ' .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-attrib { display: none !important; }' +
+                        ' .content, .appHolder, #detail-satellite-map { top: 0 !important; margin-top: 0 !important; height: 100vh !important; }';
+                    document.head.appendChild(style);
+                }
+                window.dispatchEvent(new Event('resize'));
+            })();
+        """
+
         /** An alert this quick with the screen off proves the phone isn't holding alerts back. */
         const val ON_TIME_MS = 30_000L
     }

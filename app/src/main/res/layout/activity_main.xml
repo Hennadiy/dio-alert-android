@@ -105,6 +105,19 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- The official alert map of Ukraine (map.ukrainealarm.com), signed in only. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mapCard"
+                style="@style/Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <WebView
+                    android:id="@+id/alertMap"
+                    android:layout_width="match_parent"
+                    android:layout_height="320dp" />
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- How alerts sound and vibrate (signed in only) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/alertSettingsCard"
