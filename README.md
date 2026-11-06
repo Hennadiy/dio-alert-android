@@ -22,7 +22,7 @@ Web push can't do this: a website can't choose a notification's vibration or sou
 
 ## Alert map
 
-Signed in, a card under the region shows the official alert map of Ukraine, map.ukrainealarm.com, in a WebView (`setUpAlertMap()`). The page updates itself; after loading, `MAP_ONLY_JS` accepts its intro panel and hides everything but the map (header, notices, buttons, promo banner, scale; the site's class names as of 2026-11-06). Links that leave it open in the browser, and dragging inside it moves the map rather than the page. It is someone else's site: if it changes or refuses to load, the card shows whatever the WebView gets.
+Signed in, a card under the region shows the official alert map of Ukraine, map.ukrainealarm.com, in a WebView (`setUpAlertMap()`). The page updates itself; `MAP_ONLY_JS` runs before the site's own scripts (`WebViewCompat.addDocumentStartJavaScript`; after load on older WebViews), marks its intro panel as seen and hides everything but the map; the card stays invisible until the page has loaded, so nothing flashes (header, notices, buttons, promo banner, scale; the site's class names as of 2026-11-06). Links that leave it open in the browser, and dragging inside it moves the map rather than the page. It is someone else's site: if it changes or refuses to load, the card shows whatever the WebView gets.
 
 ## Phone setup checks
 

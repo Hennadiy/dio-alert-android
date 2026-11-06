@@ -79,4 +79,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
     implementation("com.google.android.recaptcha:recaptcha:18.6.1")
+    implementation("androidx.webkit:webkit:1.12.1")
 }

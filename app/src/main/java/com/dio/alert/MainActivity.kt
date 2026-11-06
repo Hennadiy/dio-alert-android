@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationManager
 import android.app.usage.UsageStatsManager
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -16,6 +18,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -30,6 +33,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -51,6 +56,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var regionCard: View
     private lateinit var mapCard: View
     private lateinit var alertMap: WebView
+    private lateinit var mapLoader: ViewGroup
+    private val mapLoaderAnimations = mutableListOf<ObjectAnimator>()
     private lateinit var setupCard: View
     private lateinit var alertSettingsCard: View
     private lateinit var regionButton: MaterialButton
@@ -89,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         regionCard = findViewById(R.id.regionCard)
         mapCard = findViewById(R.id.mapCard)
         alertMap = findViewById(R.id.alertMap)
+        mapLoader = findViewById(R.id.mapLoader)
         setUpAlertMap()
         setupCard = findViewById(R.id.setupCard)
         alertSettingsCard = findViewById(R.id.alertSettingsCard)
@@ -404,6 +412,16 @@ class MainActivity : AppCompatActivity() {
     private fun setUpAlertMap() {
         alertMap.settings.javaScriptEnabled = true
         alertMap.settings.domStorageEnabled = true
+        // Hidden until the page is ready, so the site's header and intro never flash by; three
+        // dots pulse meanwhile.
+        alertMap.alpha = 0f
+        startMapLoader()
+        // Runs before the site's own scripts, on every load: the intro panel never opens (opening
+        // and accepting it reloaded the page) and the extra parts are hidden from the first frame.
+        val startScriptSupported = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
+        if (startScriptSupported) {
+            WebViewCompat.addDocumentStartJavaScript(alertMap, MAP_ONLY_JS, setOf("https://" + Uri.parse(ALERT_MAP_URL).host))
+        }
         alertMap.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 if (request.url.host == Uri.parse(ALERT_MAP_URL).host) return false
@@ -412,7 +430,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                view.evaluateJavascript(MAP_ONLY_JS, null)
+                // Older WebViews without start scripts get the same script once the page is in.
+                if (!startScriptSupported) view.evaluateJavascript(MAP_ONLY_JS, null)
+                view.animate().alpha(1f).setStartDelay(MAP_REVEAL_DELAY_MS).setDuration(200)
+                    .withEndAction { stopMapLoader() }
+                    .start()
             }
         }
         alertMap.setOnTouchListener { view, _ ->
@@ -422,12 +444,33 @@ class MainActivity : AppCompatActivity() {
         alertMap.loadUrl(ALERT_MAP_URL)
     }
 
+    /** Each dot fades in and out, one after another. */
+    private fun startMapLoader() {
+        mapLoader.visibility = View.VISIBLE
+        for (i in 0 until mapLoader.childCount) {
+            mapLoaderAnimations += ObjectAnimator.ofFloat(mapLoader.getChildAt(i), View.ALPHA, 0.25f, 1f).apply {
+                duration = 450
+                startDelay = i * 150L
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+                start()
+            }
+        }
+    }
+
+    private fun stopMapLoader() {
+        mapLoaderAnimations.forEach { it.cancel() }
+        mapLoaderAnimations.clear()
+        mapLoader.visibility = View.GONE
+    }
+
     override fun onPause() {
         super.onPause()
         alertMap.onPause()
     }
 
     override fun onDestroy() {
+        stopMapLoader()
         alertMap.destroy()
         super.onDestroy()
     }
@@ -792,8 +835,8 @@ class MainActivity : AppCompatActivity() {
         const val ALERT_MAP_URL = "https://map.ukrainealarm.com/"
 
         /**
-         * Leaves only the map on the page: accepts its intro panel and hides the header, notices,
-         * buttons, promo banner and scale. The class names are the site's own (checked 2026-11-06);
+         * Leaves only the map on the page: marks its intro panel as seen and hides the header,
+         * notices, buttons, promo banner and scale. The class names are the site's own (checked 2026-11-06);
          * if the site renames them, those parts simply show again.
          */
         private const val MAP_ONLY_JS = """
@@ -802,8 +845,6 @@ class MainActivity : AppCompatActivity() {
                     localStorage.setItem('detailMapOnboardingAccepted:v2:main', 'true');
                     localStorage.setItem('detailMapZoomHintSeen:v1:main', 'true');
                 } catch (e) {}
-                var accept = document.querySelector('.detailMapOnboarding__accept');
-                if (accept) accept.click();
                 if (!document.getElementById('dio-map-only')) {
                     var style = document.createElement('style');
                     style.id = 'dio-map-only';
@@ -811,11 +852,15 @@ class MainActivity : AppCompatActivity() {
                         '.header, .publicTargetNotices, .mainMapControls, .bottom-banner, .detailMapOnboarding, .mapZoomHint,' +
                         ' .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-attrib { display: none !important; }' +
                         ' .content, .appHolder, #detail-satellite-map { top: 0 !important; margin-top: 0 !important; height: 100vh !important; }';
-                    document.head.appendChild(style);
+                    // At document start there is no <head> yet; the root element takes a <style> too.
+                    (document.head || document.documentElement).appendChild(style);
                 }
                 window.dispatchEvent(new Event('resize'));
             })();
         """
+
+        /** Lets the map draw before the card fades it in. */
+        private const val MAP_REVEAL_DELAY_MS = 400L
 
         /** An alert this quick with the screen off proves the phone isn't holding alerts back. */
         const val ON_TIME_MS = 30_000L
